@@ -10,19 +10,21 @@ const nextConfig: NextConfig = {
   // Proxy local: évite les soucis de CORS et rend l'app accessible via l'IP LAN
   // même si l'API tourne sur la machine en :4000.
   async rewrites() {
-    return [
-      // Auth: le backend expose /auth/*
-      {
-        source: "/api/auth/:path*",
-        destination: "http://localhost:4000/auth/:path*",
-      },
-
-      // Fallback: /api/* -> API root (si vous ajoutez d’autres routes backend ensuite)
-      {
-        source: "/api/:path*",
-        destination: "http://localhost:4000/:path*",
-      },
-    ];
+    // `beforeFiles` : le proxy /api → Express s’applique *avant* la résolution des routes
+    // Next (App Router). Un tableau seul est traité comme `afterFiles`, ce qui peut laisser
+    // /api/* être résolu en 404 avant d’atteindre le backend.
+    return {
+      beforeFiles: [
+        {
+          source: "/api/auth/:path*",
+          destination: "http://127.0.0.1:4000/auth/:path*",
+        },
+        {
+          source: "/api/:path*",
+          destination: "http://127.0.0.1:4000/:path*",
+        },
+      ],
+    };
   },
 };
 

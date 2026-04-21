@@ -27,7 +27,7 @@ export class ApiError extends Error {
   }
 }
 
-const request = async <T>(
+export const request = async <T>(
   path: string,
   init: RequestInit & { accessToken?: string } = {},
 ): Promise<T> => {
