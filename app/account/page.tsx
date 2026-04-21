@@ -25,12 +25,13 @@ export default function AccountPage() {
       <div className="w-full max-w-md space-y-6">
         <header>
           <h1 className="text-2xl font-semibold">Mon compte</h1>
-          <p className="text-sm text-neutral-500">Bienvenue {user.name ?? user.email}.</p>
+          <p className="text-sm text-neutral-500">Bienvenue {user.firstName} {user.lastName}.</p>
         </header>
 
         <dl className="space-y-3 rounded-md border border-neutral-200 p-4 text-sm">
           <Row label="Email" value={user.email} />
-          <Row label="Nom" value={user.name ?? "—"} />
+          <Row label="Prénom" value={user.firstName} />
+          <Row label="Nom" value={user.lastName} />
           <Row
             label="Email vérifié"
             value={user.emailVerified ? "Oui" : "Non"}

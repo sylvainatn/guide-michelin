@@ -9,7 +9,8 @@ import { useAuth } from "../../../lib/auth/context";
 export default function SignUpPage() {
   const router = useRouter();
   const { signup } = useAuth();
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export default function SignUpPage() {
     setError(null);
     setPending(true);
     try {
-      await signup({ email, password, name: name || undefined });
+      await signup({ email, password, firstName, lastName });
       router.push("/account");
     } catch (err) {
       if (err instanceof ApiError && err.code === "email_taken") {
@@ -46,10 +47,18 @@ export default function SignUpPage() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <Field
+          label="Prénom"
+          autoComplete="given-name"
+          value={firstName}
+          onChange={setFirstName}
+          required
+        />
+        <Field
           label="Nom"
-          autoComplete="name"
-          value={name}
-          onChange={setName}
+          autoComplete="family-name"
+          value={lastName}
+          onChange={setLastName}
+          required
         />
         <Field
           label="Email"

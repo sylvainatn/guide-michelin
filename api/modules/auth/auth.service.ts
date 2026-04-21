@@ -12,15 +12,27 @@ import { signAccessToken } from "./token.service";
 type Ctx = { userAgent?: string; ipAddress?: string };
 
 export const signup = async (
-  input: { email: string; password: string; name?: string },
+  input: {
+    email: string;
+    password: string;
+    lastName: string;
+    firstName: string;
+  },
   ctx: Ctx,
 ) => {
-  const existing = await prisma.user.findUnique({ where: { email: input.email } });
+  const existing = await prisma.user.findUnique({
+    where: { email: input.email },
+  });
   if (existing) throw Conflict("email_taken", "Email already registered");
 
   const passwordHash = await hashPassword(input.password);
   const user = await prisma.user.create({
-    data: { email: input.email, passwordHash, name: input.name },
+    data: {
+      email: input.email,
+      passwordHash,
+      lastName: input.lastName,
+      firstName: input.firstName,
+    },
   });
 
   const { refreshToken } = await createSession({
@@ -86,13 +98,15 @@ export const me = async (userId: string) => {
 const publicUser = (user: {
   id: string;
   email: string;
-  name: string | null;
+  lastName: string;
+  firstName: string;
   emailVerified: Date | null;
   createdAt: Date;
 }) => ({
   id: user.id,
   email: user.email,
-  name: user.name,
+  lastName: user.lastName,
+  firstName: user.firstName,
   emailVerified: user.emailVerified,
   createdAt: user.createdAt,
 });

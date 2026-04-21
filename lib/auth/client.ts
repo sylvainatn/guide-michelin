@@ -5,7 +5,8 @@ const API_BASE = rawBase ?? "/api";
 export type PublicUser = {
   id: string;
   email: string;
-  name: string | null;
+  lastName: string;
+  firstName: string;
   emailVerified: string | null;
   createdAt: string;
 };
@@ -59,7 +60,7 @@ const request = async <T>(
 };
 
 export const authApi = {
-  signup: (input: { email: string; password: string; name?: string }) =>
+  signup: (input: { email: string; password: string; lastName: string; firstName: string }) =>
     request<AuthResponse>("/auth/signup", {
       method: "POST",
       body: JSON.stringify(input),
