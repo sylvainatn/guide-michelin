@@ -16,13 +16,15 @@ model User {
   id            String    @id @default(uuid())
   email         String    @unique
   passwordHash  String
-  role          Role      @default(USER)
   lastName      String
   firstName     String
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
+  role          Role        @default(USER)
+  restaurants   Restaurant[]
+  articles    Article[]
 
   @@map("users")
 }
@@ -40,4 +42,31 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+model Restaurant {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String
+  description String
+  address     String
+  videoUrl    String?
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  articles    Article[]
+
+  @@map("restaurants")
+}
+
+model Article {
+  id           String     @id @default(cuid())
+  title        String
+  content      String
+  createdAt    DateTime   @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  author       User       @relation(fields: [authorId], references: [id])
+  authorId     String
+
+  @@map("articles")
 }

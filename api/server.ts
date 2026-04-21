@@ -5,6 +5,7 @@ import express from "express";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/error-handler";
 import { authRouter } from "./modules/auth/auth.routes";
+import { restaurantRouter } from "./modules/restaurants/restaurant.routes";
 import { redis } from "../lib/redis";
 
 const app = express();
@@ -20,6 +21,7 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/restaurants", restaurantRouter);
 
 app.use(errorHandler);
 
