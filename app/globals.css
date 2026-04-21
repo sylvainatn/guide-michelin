@@ -1,26 +1,59 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* ---- Brand tokens ---- */
+  --color-primary: #c0012c;
+  --color-secondary: #ffffff;
+  --color-tertiary: #191919;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* ---- Red scale (light → dark) ---- */
+  --color-michelin-red-50: #e63946;
+  --color-michelin-red-100: #c92c3c;
+  --color-michelin-red-200: #a62b2d;
+  --color-michelin-red-300: #c0012c;
+  --color-michelin-red-400: #b3000c;
+  --color-michelin-red-500: #8a0009;
+  --color-michelin-red-600: #6e2125;
+  --color-michelin-red-700: #5c0006;
+  --color-michelin-red-800: #4b1b1e;
+  --color-michelin-red-900: #2d1515;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* ---- Accents ---- */
+  --color-michelin-accent-100: #ccd7f0;
+  --color-michelin-accent-200: #afc0e6;
+
+  /* ---- Gold scale (light → dark) ---- */
+  --color-michelin-gold-100: #f3d57f;
+  --color-michelin-gold-500: #bf9445;
+  --color-michelin-gold-900: #8c5b30;
+
+  /* ---- Surface aliases ---- */
+  --color-background: var(--color-secondary);
+  --color-foreground: var(--color-tertiary);
+
+  /* ---- Typography ---- */
+  --font-sans: var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Semantic text scale (cf. design system) */
+  --text-h1: 0.875rem;                  /* 14px — Boutons */
+  --text-h1--line-height: 1.25rem;      /* 20px */
+  --text-h1--font-weight: 600;          /* SemiBold */
+
+  --text-h2: 0.75rem;                   /* 12px — Labels */
+  --text-h2--line-height: 1rem;         /* 16px */
+  --text-h2--font-weight: 500;          /* Medium */
+
+  --text-h3: 0.8125rem;                 /* 13px — Navigation */
+  --text-h3--line-height: 1.125rem;     /* 18px */
+  --text-h3--font-weight: 500;          /* Medium */
+
+  --text-h4: 1rem;                      /* 16px — Prix / infos importantes */
+  --text-h4--line-height: 1.5rem;       /* 24px */
+  --text-h4--font-weight: 600;          /* SemiBold */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }
