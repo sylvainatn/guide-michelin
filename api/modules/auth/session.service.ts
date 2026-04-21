@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { env } from "../config/env";
+import { prisma } from "../../../lib/prisma";
+import { env } from "../../config/env";
 import {
   generateRefreshToken,
   hashRefreshToken,

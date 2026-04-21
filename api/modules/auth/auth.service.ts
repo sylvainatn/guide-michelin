@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { BadRequest, Conflict, Unauthorized } from "../lib/errors";
+import { prisma } from "../../../lib/prisma";
+import { BadRequest, Conflict, Unauthorized } from "../../lib/errors";
 import { hashPassword, verifyPassword } from "./password.service";
 import {
   createSession,

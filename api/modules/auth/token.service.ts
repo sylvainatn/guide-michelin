@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
-import { env } from "../config/env";
+import { env } from "../../config/env";
 
 export type AccessTokenPayload = {
   sub: string;

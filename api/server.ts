@@ -4,7 +4,7 @@ import cors from "cors";
 import express from "express";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/error-handler";
-import { authRouter } from "./routes/auth.routes";
+import { authRouter } from "./modules/auth/auth.routes";
 import { redis } from "../lib/redis";
 
 const app = express();

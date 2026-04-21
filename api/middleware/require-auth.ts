@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { Unauthorized } from "../lib/errors";
-import { verifyAccessToken } from "../services/token.service";
+import { verifyAccessToken } from "../modules/auth/token.service";
 
 export const requireAuth = (req: Request, _res: Response, next: NextFunction) => {
   const header = req.headers.authorization;

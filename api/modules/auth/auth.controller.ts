@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
-import { REFRESH_COOKIE, clearRefreshCookie, setRefreshCookie } from "../lib/cookies";
-import { Unauthorized } from "../lib/errors";
-import { loginSchema, signupSchema } from "../schemas/auth.schema";
-import * as authService from "../services/auth.service";
+import { REFRESH_COOKIE, clearRefreshCookie, setRefreshCookie } from "../../lib/cookies";
+import { Unauthorized } from "../../lib/errors";
+import { loginSchema, signupSchema } from "./auth.schema";
+import * as authService from "./auth.service";
 
 const reqCtx = (req: Request) => ({
   userAgent: req.get("user-agent") ?? undefined,
