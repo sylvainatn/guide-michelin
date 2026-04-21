@@ -28,6 +28,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<AuthState>({ user: null, status: "loading" });
   const accessTokenRef = useRef<string | null>(null);
+  const bootstrappedRef = useRef(false);
 
   const setSession = useCallback((user: PublicUser, accessToken: string) => {
     accessTokenRef.current = accessToken;
@@ -40,15 +41,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    // Guard against React Strict Mode's double-invocation in dev:
+    // /auth/refresh rotates the refresh token, so a second concurrent call
+    // with the now-stale cookie would 401 and wipe the session.
+    if (bootstrappedRef.current) return;
+    bootstrappedRef.current = true;
+
     authApi
       .refresh()
       .then(({ user, accessToken }) => setSession(user, accessToken))
       .catch((err) => {
-        const is401 = err instanceof ApiError && err.status === 401;
-        const isUnreachable =
-          err instanceof TypeError && err.message === "Failed to fetch";
-        if (!is401 && !isUnreachable) {
-          console.error("refresh failed", err);
+        if (err instanceof ApiError) {
+          console.warn(
+            `[auth] refresh failed: status=${err.status} code=${err.code}`,
+          );
+        } else if (err instanceof TypeError) {
+          console.warn("[auth] refresh unreachable (API down?):", err.message);
+        } else {
+          console.error("[auth] refresh unexpected error", err);
         }
         clearSession();
       });

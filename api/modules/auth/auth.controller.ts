@@ -25,6 +25,9 @@ export const login = async (req: Request, res: Response) => {
 
 export const refresh = async (req: Request, res: Response) => {
   const token = req.cookies?.[REFRESH_COOKIE];
+  console.log(
+    `[auth.refresh] cookies=${Object.keys(req.cookies ?? {}).join(",") || "(none)"} has_token=${Boolean(token)}`,
+  );
   if (!token) throw Unauthorized("missing_refresh_token");
   const { user, accessToken, refreshToken } = await authService.refresh(token);
   setRefreshCookie(res, refreshToken);

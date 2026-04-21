@@ -2,6 +2,8 @@ const rawBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 /** When unset, use same-origin `/api` (see `rewrites` in next.config.ts). */
 const API_BASE = rawBase ?? "/api";
 
+export type Role = "USER" | "ADMIN";
+
 export type PublicUser = {
   id: string;
   email: string;
@@ -9,6 +11,7 @@ export type PublicUser = {
   firstName: string;
   emailVerified: string | null;
   createdAt: string;
+  role: Role;
 };
 
 export type AuthResponse = {

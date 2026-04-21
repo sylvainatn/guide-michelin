@@ -12,17 +12,20 @@ const UPLOAD_DIR = path.resolve(process.cwd(), "public", "uploads", "videos");
 mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const MAX_SIZE_BYTES = 100 * 1024 * 1024;
-const ALLOWED_MIME = new Set([
-  "video/mp4",
-  "video/webm",
-  "video/ogg",
-  "video/quicktime",
-]);
+
+// Whitelist mimetype → extension. L'extension est *dérivée* du mimetype
+// pour empêcher un attaquant d'injecter .html/.svg/.php via originalname.
+const EXT_BY_MIME: Record<string, string> = {
+  "video/mp4": ".mp4",
+  "video/webm": ".webm",
+  "video/ogg": ".ogv",
+  "video/quicktime": ".mov",
+};
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
   filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase().slice(0, 10);
+    const ext = EXT_BY_MIME[file.mimetype] ?? "";
     cb(null, `${Date.now()}-${randomUUID()}${ext}`);
   },
 });
@@ -31,7 +34,7 @@ const upload = multer({
   storage,
   limits: { fileSize: MAX_SIZE_BYTES, files: 1 },
   fileFilter: (_req, file, cb) => {
-    if (!ALLOWED_MIME.has(file.mimetype)) {
+    if (!(file.mimetype in EXT_BY_MIME)) {
       cb(new Error("unsupported_media_type"));
       return;
     }

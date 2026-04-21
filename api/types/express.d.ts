@@ -2,6 +2,6 @@ import "express";
 
 declare module "express" {
   interface Request {
-    user?: { id: string; email: string };
+    user?: { id: string; email: string; role: "USER" | "ADMIN" };
   }
 }

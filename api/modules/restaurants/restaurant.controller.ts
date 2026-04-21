@@ -27,3 +27,19 @@ export const listMine = async (req: Request, res: Response) => {
   });
   res.json({ restaurants });
 };
+
+export const listFeed = async (_req: Request, res: Response) => {
+  const restaurants = await prisma.restaurant.findMany({
+    where: { videoUrl: { not: null } },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      address: true,
+      videoUrl: true,
+      createdAt: true,
+    },
+  });
+  res.json({ restaurants });
+};

@@ -10,7 +10,7 @@ export const requireAuth = (req: Request, _res: Response, next: NextFunction) =>
 
   try {
     const payload = verifyAccessToken(token);
-    req.user = { id: payload.sub, email: payload.email };
+    req.user = { id: payload.sub, email: payload.email, role: payload.role };
     next();
   } catch {
     throw Unauthorized("invalid_access_token");

@@ -5,6 +5,7 @@ import { env } from "../../config/env";
 export type AccessTokenPayload = {
   sub: string;
   email: string;
+  role: "USER" | "ADMIN";
 };
 
 export const signAccessToken = (payload: AccessTokenPayload) =>
@@ -17,7 +18,15 @@ export const verifyAccessToken = (token: string): AccessTokenPayload => {
   if (typeof decoded === "string") {
     throw new Error("invalid token payload");
   }
-  return { sub: decoded.sub as string, email: decoded.email as string };
+  const role = decoded.role;
+  if (role !== "USER" && role !== "ADMIN") {
+    throw new Error("invalid role in token payload");
+  }
+  return {
+    sub: decoded.sub as string,
+    email: decoded.email as string,
+    role,
+  };
 };
 
 export const generateRefreshToken = () =>

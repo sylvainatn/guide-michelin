@@ -1,13 +1,27 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SubmitEventHandler } from "react";
+import { Button } from "../../../components/atoms/Button";
+import { ErrorText } from "../../../components/atoms/ErrorText";
+import { Label } from "../../../components/atoms/Label";
+import { MutedText } from "../../../components/atoms/MutedText";
+import { BackLink } from "../../../components/molecules/BackLink";
+import { FormField } from "../../../components/molecules/FormField";
+import { PageHeader } from "../../../components/molecules/PageHeader";
+import { RadioGroup } from "../../../components/molecules/RadioGroup";
+import { TextareaField } from "../../../components/molecules/TextareaField";
 import { ApiError } from "../../../lib/auth/client";
 import { useAuth } from "../../../lib/auth/context";
 import { restaurantApi } from "../../../lib/restaurants/client";
 
 type VideoSource = "none" | "url" | "upload";
+
+const VIDEO_SOURCE_OPTIONS = [
+  { value: "none", label: "Aucune" },
+  { value: "url", label: "Lien externe" },
+  { value: "upload", label: "Uploader un fichier" },
+] as const satisfies ReadonlyArray<{ value: VideoSource; label: string }>;
 
 export default function AddRestaurantPage() {
   const router = useRouter();
@@ -25,7 +39,7 @@ export default function AddRestaurantPage() {
     if (status === "unauthenticated") router.replace("/signin");
   }, [status, router]);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const token = getAccessToken();
     if (!token) {
@@ -76,45 +90,38 @@ export default function AddRestaurantPage() {
   if (status !== "authenticated" || !user) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-neutral-500">Chargement…</p>
+        <MutedText>Chargement…</MutedText>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <p>
-          <Link href="/dashboard" className="text-sm text-neutral-500 underline">
-            ← Retour au tableau de bord
-          </Link>
-        </p>
-        <h1 className="text-2xl font-semibold">Ajouter un restaurant</h1>
-        <p className="text-sm text-neutral-500">
-          Renseigne les informations principales de l’établissement.
-        </p>
-      </header>
+      <div className="space-y-2">
+        <BackLink href="/dashboard">Retour au tableau de bord</BackLink>
+        <PageHeader
+          title="Ajouter un restaurant"
+          subtitle="Renseigne les informations principales de l'établissement."
+        />
+      </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
-        <Field
+        <FormField
           label="Nom du restaurant"
           value={name}
           onChange={setName}
           required
           maxLength={200}
         />
-        <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-neutral-700">Description</span>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            maxLength={5000}
-            rows={5}
-            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-black focus:outline-none"
-          />
-        </label>
-        <Field
+        <TextareaField
+          label="Description"
+          value={description}
+          onChange={setDescription}
+          required
+          maxLength={5000}
+          rows={5}
+        />
+        <FormField
           label="Adresse"
           value={address}
           onChange={setAddress}
@@ -123,65 +130,35 @@ export default function AddRestaurantPage() {
         />
 
         <fieldset className="space-y-3 rounded-md border border-neutral-200 p-4">
-          <legend className="px-1 text-sm font-medium text-neutral-700">
+          <legend className="px-1 text-h2 text-neutral-700">
             Vidéo (optionnel)
           </legend>
 
-          <div className="flex flex-wrap gap-4 text-sm">
-            <RadioOption
-              name="videoSource"
-              value="none"
-              checked={videoSource === "none"}
-              onChange={() => {
-                setVideoSource("none");
-                setVideoUrl("");
-                setVideoFile(null);
-              }}
-              label="Aucune"
-            />
-            <RadioOption
-              name="videoSource"
-              value="url"
-              checked={videoSource === "url"}
-              onChange={() => {
-                setVideoSource("url");
-                setVideoFile(null);
-              }}
-              label="Lien externe"
-            />
-            <RadioOption
-              name="videoSource"
-              value="upload"
-              checked={videoSource === "upload"}
-              onChange={() => {
-                setVideoSource("upload");
-                setVideoUrl("");
-              }}
-              label="Uploader un fichier"
-            />
-          </div>
+          <RadioGroup
+            name="videoSource"
+            value={videoSource}
+            options={VIDEO_SOURCE_OPTIONS}
+            onChange={(next) => {
+              setVideoSource(next);
+              if (next !== "url") setVideoUrl("");
+              if (next !== "upload") setVideoFile(null);
+            }}
+          />
 
           {videoSource === "url" && (
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-neutral-700">
-                URL de la vidéo
-              </span>
-              <input
-                type="url"
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                maxLength={2000}
-                className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-black focus:outline-none"
-              />
-            </label>
+            <FormField
+              label="URL de la vidéo"
+              type="url"
+              value={videoUrl}
+              onChange={setVideoUrl}
+              placeholder="https://www.youtube.com/watch?v=..."
+              maxLength={2000}
+            />
           )}
 
           {videoSource === "upload" && (
             <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-neutral-700">
-                Fichier vidéo (mp4, webm, ogg, mov — max 100 Mo)
-              </span>
+              <Label>Fichier vidéo (mp4, webm, ogg, mov — max 100 Mo)</Label>
               <input
                 type="file"
                 accept="video/mp4,video/webm,video/ogg,video/quicktime"
@@ -189,71 +166,20 @@ export default function AddRestaurantPage() {
                 className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-neutral-200"
               />
               {videoFile && (
-                <span className="text-xs text-neutral-500">
+                <MutedText>
                   {videoFile.name} — {(videoFile.size / (1024 * 1024)).toFixed(1)} Mo
-                </span>
+                </MutedText>
               )}
             </label>
           )}
         </fieldset>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <ErrorText>{error}</ErrorText>}
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded-md bg-black px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
-        >
+        <Button type="submit" disabled={pending} fullWidth>
           {pending ? "Enregistrement…" : "Enregistrer le restaurant"}
-        </button>
+        </Button>
       </form>
     </div>
   );
 }
-
-const Field = ({
-  label,
-  value,
-  onChange,
-  ...props
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) => (
-  <label className="block space-y-1.5">
-    <span className="text-sm font-medium text-neutral-700">{label}</span>
-    <input
-      {...props}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-black focus:outline-none"
-    />
-  </label>
-);
-
-const RadioOption = ({
-  name,
-  value,
-  checked,
-  onChange,
-  label,
-}: {
-  name: string;
-  value: string;
-  checked: boolean;
-  onChange: () => void;
-  label: string;
-}) => (
-  <label className="inline-flex cursor-pointer items-center gap-2">
-    <input
-      type="radio"
-      name={name}
-      value={value}
-      checked={checked}
-      onChange={onChange}
-      className="accent-black"
-    />
-    <span>{label}</span>
-  </label>
-);

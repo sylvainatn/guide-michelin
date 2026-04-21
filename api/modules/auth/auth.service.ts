@@ -40,7 +40,11 @@ export const signup = async (
     userAgent: ctx.userAgent,
     ipAddress: ctx.ipAddress,
   });
-  const accessToken = signAccessToken({ sub: user.id, email: user.email });
+  const accessToken = signAccessToken({
+    sub: user.id,
+    email: user.email,
+    role: user.role,
+  });
 
   return { user: publicUser(user), accessToken, refreshToken };
 };
@@ -60,7 +64,11 @@ export const login = async (
     userAgent: ctx.userAgent,
     ipAddress: ctx.ipAddress,
   });
-  const accessToken = signAccessToken({ sub: user.id, email: user.email });
+  const accessToken = signAccessToken({
+    sub: user.id,
+    email: user.email,
+    role: user.role,
+  });
 
   return { user: publicUser(user), accessToken, refreshToken };
 };
@@ -74,6 +82,7 @@ export const refresh = async (refreshToken: string) => {
   const accessToken = signAccessToken({
     sub: session.user.id,
     email: session.user.email,
+    role: session.user.role,
   });
 
   return {
@@ -102,6 +111,7 @@ const publicUser = (user: {
   firstName: string;
   emailVerified: Date | null;
   createdAt: Date;
+  role: "USER" | "ADMIN";
 }) => ({
   id: user.id,
   email: user.email,
@@ -109,4 +119,5 @@ const publicUser = (user: {
   firstName: user.firstName,
   emailVerified: user.emailVerified,
   createdAt: user.createdAt,
+  role: user.role,
 });
