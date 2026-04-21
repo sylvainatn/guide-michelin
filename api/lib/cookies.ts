@@ -8,7 +8,8 @@ const baseOptions: CookieOptions = {
   sameSite: "lax",
   secure: env.NODE_ENV === "production",
   domain: env.COOKIE_DOMAIN,
-  path: "/auth",
+  // `/` so the cookie is sent to Next.js `/api/auth/*` rewrites, not only `/auth/*` on the API host.
+  path: "/",
 };
 
 export const setRefreshCookie = (res: Response, token: string) => {

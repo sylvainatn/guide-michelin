@@ -44,7 +44,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .refresh()
       .then(({ user, accessToken }) => setSession(user, accessToken))
       .catch((err) => {
-        if (!(err instanceof ApiError) || err.status !== 401) {
+        const is401 = err instanceof ApiError && err.status === 401;
+        const isUnreachable =
+          err instanceof TypeError && err.message === "Failed to fetch";
+        if (!is401 && !isUnreachable) {
           console.error("refresh failed", err);
         }
         clearSession();

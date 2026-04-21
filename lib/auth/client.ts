@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const rawBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+/** When unset, use same-origin `/api` (see `rewrites` in next.config.ts). */
+const API_BASE = rawBase ?? "/api";
 
 export type PublicUser = {
   id: string;
@@ -29,7 +31,7 @@ const request = async <T>(
   init: RequestInit & { accessToken?: string } = {},
 ): Promise<T> => {
   const { accessToken, headers, ...rest } = init;
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     ...rest,
     credentials: "include",
     headers: {
