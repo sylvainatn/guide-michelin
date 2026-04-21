@@ -21,6 +21,14 @@ export type CreateRestaurantInput = {
   videoUrl?: string;
 };
 
+export type UpdateRestaurantInput = {
+  name?: string;
+  description?: string;
+  address?: string;
+  // null = supprimer la vidéo existante, string = nouvelle URL, undefined = inchangé.
+  videoUrl?: string | null;
+};
+
 export const restaurantApi = {
   create: (accessToken: string, input: CreateRestaurantInput) =>
     request<{ restaurant: RestaurantDTO }>("/restaurants", {
@@ -32,6 +40,25 @@ export const restaurantApi = {
   listMine: (accessToken: string) =>
     request<{ restaurants: RestaurantDTO[] }>("/restaurants", {
       method: "GET",
+      accessToken,
+    }),
+
+  getById: (accessToken: string, id: string) =>
+    request<{ restaurant: RestaurantDTO }>(`/restaurants/${id}`, {
+      method: "GET",
+      accessToken,
+    }),
+
+  update: (accessToken: string, id: string, input: UpdateRestaurantInput) =>
+    request<{ restaurant: RestaurantDTO }>(`/restaurants/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+      accessToken,
+    }),
+
+  remove: (accessToken: string, id: string) =>
+    request<void>(`/restaurants/${id}`, {
+      method: "DELETE",
       accessToken,
     }),
 

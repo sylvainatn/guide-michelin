@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ApiError } from "../../lib/auth/client";
 import { useAuth } from "../../lib/auth/context";
 import { type RestaurantDTO, restaurantApi } from "../../lib/restaurants/client";
@@ -12,40 +12,51 @@ export default function DashboardPage() {
   const { user, status, getAccessToken } = useAuth();
   const [restaurants, setRestaurants] = useState<RestaurantDTO[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/signin");
   }, [status, router]);
 
-  useEffect(() => {
-    if (status !== "authenticated") return;
+  const load = useCallback(async () => {
     const token = getAccessToken();
     if (!token) return;
+    try {
+      const { restaurants: list } = await restaurantApi.listMine(token);
+      setError(null);
+      setRestaurants(list);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? "Impossible de charger tes établissements."
+          : "Erreur réseau. Réessaie.",
+      );
+      setRestaurants([]);
+    }
+  }, [getAccessToken]);
 
-    let cancelled = false;
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    void load();
+  }, [status, load]);
 
-    (async () => {
-      try {
-        const { restaurants: list } = await restaurantApi.listMine(token);
-        if (!cancelled) {
-          setError(null);
-          setRestaurants(list);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        setError(
-          err instanceof ApiError
-            ? "Impossible de charger tes établissements."
-            : "Erreur réseau. Réessaie.",
-        );
-        setRestaurants([]);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [status, getAccessToken]);
+  const onDelete = async (id: string, name: string) => {
+    const ok = window.confirm(`Supprimer définitivement "${name}" ?`);
+    if (!ok) return;
+    const token = getAccessToken();
+    if (!token) return;
+    setDeletingId(id);
+    try {
+      await restaurantApi.remove(token, id);
+      setRestaurants((prev) => prev?.filter((r) => r.id !== id) ?? null);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Suppression impossible.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (status !== "authenticated" || !user) {
     return (
@@ -95,10 +106,38 @@ export default function DashboardPage() {
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200">
             {restaurants.map((r) => (
-              <li key={r.id} className="px-4 py-3">
-                <p className="font-medium">{r.name}</p>
-                <p className="text-sm text-neutral-500 line-clamp-2">{r.description}</p>
-                <p className="mt-1 text-xs text-neutral-400">{r.address}</p>
+              <li
+                key={r.id}
+                className="flex items-start justify-between gap-4 px-4 py-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{r.name}</p>
+                  <p className="text-sm text-neutral-500 line-clamp-2">
+                    {r.description}
+                  </p>
+                  <p className="mt-1 text-xs text-neutral-400">{r.address}</p>
+                  {r.videoUrl && (
+                    <p className="mt-1 text-xs text-neutral-400">
+                      Vidéo : <span className="underline">{r.videoUrl}</span>
+                    </p>
+                  )}
+                </div>
+                <div className="flex shrink-0 flex-col gap-1.5 sm:flex-row">
+                  <Link
+                    href={`/dashboard/restaurants/${r.id}/edit`}
+                    className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium hover:bg-neutral-50"
+                  >
+                    Modifier
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(r.id, r.name)}
+                    disabled={deletingId === r.id}
+                    className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    {deletingId === r.id ? "Suppression…" : "Supprimer"}
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

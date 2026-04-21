@@ -7,9 +7,14 @@ export const restaurantRouter = Router();
 
 restaurantRouter.post("/", requireAuth, restaurantController.create);
 restaurantRouter.get("/", requireAuth, restaurantController.listMine);
+
 restaurantRouter.post(
   "/video",
   requireAuth,
   videoUploadMiddleware,
   uploadVideo,
 );
+
+restaurantRouter.get("/:id", requireAuth, restaurantController.getById);
+restaurantRouter.patch("/:id", requireAuth, restaurantController.update);
+restaurantRouter.delete("/:id", requireAuth, restaurantController.remove);
