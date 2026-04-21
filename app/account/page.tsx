@@ -9,6 +9,15 @@ import { PageHeader } from "../../components/molecules/PageHeader";
 import { AccountDetails } from "../../components/organisms/AccountDetails";
 import { useAuth } from "../../lib/auth/context";
 
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between">
+      <dt className="font-medium text-neutral-600">{label}</dt>
+      <dd className="text-neutral-900">{value}</dd>
+    </div>
+  );
+}
+
 export default function AccountPage() {
   const router = useRouter();
   const { user, status, logout } = useAuth();
