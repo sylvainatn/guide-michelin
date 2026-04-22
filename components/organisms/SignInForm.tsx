@@ -30,8 +30,8 @@ export const SignInForm = () => {
     setError(null);
     setPending(true);
     try {
-      await login({ identifier: email, password });
-      router.push("/account");
+      const user = await login({ identifier: email, password });
+      router.push(user.role === "ADMIN" ? "/dashboard" : "/account");
     } catch (err) {
       setError(
         err instanceof ApiError && err.code === "invalid_credentials"

@@ -4,6 +4,13 @@ set -e
 echo "[entrypoint] Applying Prisma migrations..."
 npx prisma migrate deploy
 
+if [ "${SKIP_SEED:-0}" = "1" ]; then
+  echo "[entrypoint] SKIP_SEED=1, skipping seeders."
+else
+  echo "[entrypoint] Running seeders..."
+  npx tsx prisma/seed.ts
+fi
+
 mkdir -p /app/public/uploads/videos
 
 echo "[entrypoint] Starting Next (3000) + API (4000)..."

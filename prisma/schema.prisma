@@ -50,6 +50,12 @@ enum BudgetTier {
   PRESTIGE
 }
 
+enum CardBrand {
+  VISA
+  MASTERCARD
+  CARD
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -63,8 +69,11 @@ model User {
   sessions      Session[]
   role          Role        @default(USER)
   restaurants   Restaurant[]
-  articles    Article[]
+  articles      Article[]
   profile       UserProfile?
+  bookmarks     Bookmark[]
+  favorites     Favorite[]
+  paymentCards  PaymentCard[]
 
   @@map("users")
 }
@@ -106,10 +115,11 @@ model Restaurant {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  name        String
-  description String
-  address     String
-  videoUrl    String?
+  name          String
+  description   String
+  address       String
+  videoUrl      String?
+  mainImageUrl  String?
 
   // --- Fiche Michelin ---
   chefName    String?
@@ -124,8 +134,78 @@ model Restaurant {
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String
   articles    Article[]
+  bookmarks   Bookmark[]
+  favorites   Favorite[]
+  review      MichelinReview?
 
   @@map("restaurants")
+}
+
+model MichelinReview {
+  id                String     @id @default(cuid())
+  restaurantId      String     @unique
+  restaurant        Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  // Les 5 criteres mondiaux (0.0 -> 10.0)
+  productsScore     Float
+  harmonyScore      Float
+  masteryScore      Float
+  personalityScore  Float
+  regularityScore   Float
+
+  // Contexte editorial affiche sur la fiche
+  inspectorName     String?
+  verdict           String?
+  priceFromEur      Int?
+  tripDuration      String?
+  partnerBadge      String?
+  locationLabel     String?
+
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@map("michelin_reviews")
+}
+
+model Bookmark {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, restaurantId])
+  @@index([restaurantId])
+  @@map("bookmarks")
+}
+
+model Favorite {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, restaurantId])
+  @@index([restaurantId])
+  @@map("favorites")
+}
+
+model PaymentCard {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand     CardBrand
+  last4     String
+  holder    String
+  expMonth  Int
+  expYear   Int
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("payment_cards")
 }
 
 model Article {

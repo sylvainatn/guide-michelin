@@ -9,7 +9,7 @@ export const Checkbox = ({ label, className = "", ...props }: CheckboxProps) => 
     <input
       type="checkbox"
       {...props}
-      className="size-4 shrink-0 appearance-none rounded-[4px] border border-primary bg-white checked:border-primary checked:bg-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+      className="size-4 shrink-0 appearance-none rounded-sm border border-primary bg-white checked:border-primary checked:bg-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
     />
     {label && <span>{label}</span>}
   </label>

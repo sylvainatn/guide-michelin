@@ -295,6 +295,142 @@ export const PinIcon = (props: IconProps) => (
   </svg>
 );
 
+export const InfoIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 8h.01M11 12h1v5h1" />
+  </svg>
+);
+
+export const PlusIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+export const SettingsGearIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8" />
+  </svg>
+);
+
+export const CalendarIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M3 10h18M8 3v4M16 3v4" />
+  </svg>
+);
+
+export const CreditCardIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="6" width="18" height="13" rx="2" />
+    <path d="M3 11h18" />
+  </svg>
+);
+
+export const ImageIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <circle cx="9" cy="10" r="1.6" />
+    <path d="m5 19 5-5 3 3 3-4 5 6" />
+  </svg>
+);
+
+export const UsersGroupIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="9" cy="8.5" r="3" />
+    <path d="M3 19c.8-3 3.1-4.8 6-4.8s5.2 1.8 6 4.8" />
+    <circle cx="17" cy="6.5" r="2.4" />
+    <path d="M15.5 13.3c2.5 0 4.7 1.5 5.5 4.2" />
+  </svg>
+);
+
+export const LogoutIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4" />
+    <path d="m15 8 4 4-4 4M9 12h10" />
+  </svg>
+);
+
+export const SlidersIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+    <circle cx="9" cy="7" r="1.8" fill="currentColor" stroke="none" />
+    <circle cx="16" cy="12" r="1.8" fill="currentColor" stroke="none" />
+    <circle cx="11" cy="17" r="1.8" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+export const AwardRibbonIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="12" cy="9" r="5" />
+    <path d="m9 13.5-2 7.5 5-3 5 3-2-7.5" />
+  </svg>
+);
+
+export const GemIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M6 3h12l3 5-9 13L3 8l3-5z" />
+    <path d="M3 8h18" />
+    <path d="M9 3 6 8l6 13 6-13-3-5" />
+  </svg>
+);
+
+export const MusicNoteIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M9 18V6l11-2v12" />
+    <circle cx="7" cy="18" r="2.5" />
+    <circle cx="18" cy="16" r="2.5" />
+  </svg>
+);
+
+export const FlameIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M12 3c1.2 3 3.2 4 3.2 6.5a3.2 3.2 0 0 1-1.6 2.7" />
+    <path d="M8 11c-2 2-3 4-3 6 0 3.3 3 6 7 6s7-2.7 7-6c0-3-1.6-5-4-7 0 2-1.5 3-2.8 3-1.3 0-2.5-1-2.5-2 0-.6.2-1.2.3-1.9C8.6 9.6 8 10.2 8 11z" />
+  </svg>
+);
+
+export const RefreshIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M4 12a8 8 0 0 1 13.7-5.7L20 8" />
+    <path d="M20 3v5h-5" />
+    <path d="M20 12a8 8 0 0 1-13.7 5.7L4 16" />
+    <path d="M4 21v-5h5" />
+  </svg>
+);
+
+export const CameraIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="6" width="18" height="13" rx="2.5" />
+    <path d="M8 6 9.5 4h5L16 6" />
+    <circle cx="12" cy="13" r="3.5" />
+  </svg>
+);
+
+export const TrashIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M4 7h16" />
+    <path d="M10 11v6" />
+    <path d="M14 11v6" />
+    <path d="M5 7 6 20a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1l1-13" />
+    <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+  </svg>
+);
+
+export const FingerprintIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M7.5 8a5 5 0 0 1 9-.8" />
+    <path d="M5.5 11a7 7 0 0 1 13-1" />
+    <path d="M12 10a3 3 0 0 0-3 3v1" />
+    <path d="M12 10a3 3 0 0 1 3 3v3" />
+    <path d="M15 19v-2" />
+    <path d="M9 17c0 1 .3 2 1 3" />
+    <path d="M5.5 14c0 2 .5 4 2 6" />
+  </svg>
+);
+
 export const CheckCircleFilledIcon = (props: IconProps) => (
   <svg {...base} {...props} fill="currentColor" stroke="none">
     <circle cx="12" cy="12" r="10" />

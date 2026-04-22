@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Quand la vidéo est en pause, on montre l'icône Play en permanence.
 // Quand elle repart en lecture, on flash l'icône Pause puis on fade out
@@ -9,14 +9,18 @@ import { useEffect, useState } from "react";
 const FADE_MS = 600;
 
 export const VideoPlayIndicator = ({ playing }: { playing: boolean }) => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
+  const firstRun = useRef(true);
 
   useEffect(() => {
-    if (!playing) {
-      setVisible(true);
+    // Skip le mount initial : l'autoplay via IntersectionObserver ne doit pas
+    // déclencher de flash tant qu'aucune transition utilisateur n'a eu lieu.
+    if (firstRun.current) {
+      firstRun.current = false;
       return;
     }
     setVisible(true);
+    if (!playing) return;
     const t = setTimeout(() => setVisible(false), FADE_MS);
     return () => clearTimeout(t);
   }, [playing]);
@@ -31,8 +35,8 @@ export const VideoPlayIndicator = ({ playing }: { playing: boolean }) => {
       <Image
         src={playing ? "/icons/pause-red.svg" : "/icons/play-red.svg"}
         alt=""
-        width={72}
-        height={72}
+        width={42}
+        height={42}
         className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
       />
     </div>

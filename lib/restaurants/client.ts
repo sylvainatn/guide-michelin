@@ -12,6 +12,7 @@ export type RestaurantDTO = {
   description: string;
   address: string;
   videoUrl: string | null;
+  mainImageUrl: string | null;
   chefName: string | null;
   stars: number | null;
   priceRange: PriceRange | null;
@@ -23,12 +24,27 @@ export type RestaurantDTO = {
   updatedAt: string;
 };
 
+export type MichelinReviewDTO = {
+  productsScore: number;
+  harmonyScore: number;
+  masteryScore: number;
+  personalityScore: number;
+  regularityScore: number;
+  inspectorName: string | null;
+  verdict: string | null;
+  priceFromEur: number | null;
+  tripDuration: string | null;
+  partnerBadge: string | null;
+  locationLabel: string | null;
+};
+
 export type RestaurantDetailDTO = {
   id: string;
   name: string;
   description: string;
   address: string;
   videoUrl: string | null;
+  mainImageUrl: string | null;
   chefName: string | null;
   stars: number | null;
   priceRange: PriceRange | null;
@@ -36,6 +52,7 @@ export type RestaurantDetailDTO = {
   tourStops: TourConfig | null;
   photos360: string[];
   createdAt: string;
+  review: MichelinReviewDTO | null;
 };
 
 export type CreateRestaurantInput = {
@@ -43,6 +60,7 @@ export type CreateRestaurantInput = {
   description: string;
   address: string;
   videoUrl?: string;
+  mainImageUrl?: string;
   chefName?: string;
   stars?: number;
   priceRange?: PriceRange;
@@ -57,6 +75,7 @@ export type UpdateRestaurantInput = {
   description?: string;
   address?: string;
   videoUrl?: string | null;
+  mainImageUrl?: string | null;
   chefName?: string | null;
   stars?: number | null;
   priceRange?: PriceRange | null;
@@ -69,10 +88,13 @@ export type FeedRestaurantDTO = {
   description: string;
   address: string;
   videoUrl: string;
+  mainImageUrl: string | null;
   chefName: string | null;
   stars: number | null;
   style: string[];
   createdAt: string;
+  bookmarkedByMe: boolean;
+  favoritedByMe: boolean;
 };
 
 export const restaurantApi = {
@@ -114,28 +136,54 @@ export const restaurantApi = {
       accessToken,
     }),
 
-  uploadVideo: async (
-    accessToken: string,
-    file: File,
-  ): Promise<{ url: string }> => {
-    const form = new FormData();
-    form.append("video", file);
-    const res = await fetch(`${API_BASE}/restaurants/video`, {
-      method: "POST",
-      body: form,
-      credentials: "include",
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      const err = body.error ?? {};
-      throw new ApiError(
-        res.status,
-        err.code ?? "unknown_error",
-        err.message ?? res.statusText,
-        err.details,
-      );
-    }
-    return body as { url: string };
-  },
+  setBookmark: (accessToken: string, id: string, bookmarked: boolean) =>
+    request<{ restaurantId: string; bookmarked: boolean }>(
+      `/me/bookmarks/${id}`,
+      {
+        method: bookmarked ? "PUT" : "DELETE",
+        accessToken,
+      },
+    ),
+
+  setFavorite: (accessToken: string, id: string, favorited: boolean) =>
+    request<{ restaurantId: string; favorited: boolean }>(
+      `/me/favorites/${id}`,
+      {
+        method: favorited ? "PUT" : "DELETE",
+        accessToken,
+      },
+    ),
+
+  uploadVideo: (accessToken: string, file: File) =>
+    uploadFormFile(accessToken, "/restaurants/video", "video", file),
+
+  uploadImage: (accessToken: string, file: File) =>
+    uploadFormFile(accessToken, "/restaurants/image", "image", file),
+};
+
+const uploadFormFile = async (
+  accessToken: string,
+  path: string,
+  fieldName: string,
+  file: File,
+): Promise<{ url: string }> => {
+  const form = new FormData();
+  form.append(fieldName, file);
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = body.error ?? {};
+    throw new ApiError(
+      res.status,
+      err.code ?? "unknown_error",
+      err.message ?? res.statusText,
+      err.details,
+    );
+  }
+  return body as { url: string };
 };
