@@ -1,11 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { env } from "../config/env";
 import { HttpError } from "../lib/errors";
 
 export const errorHandler = (
   err: unknown,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ) => {
@@ -27,9 +26,7 @@ export const errorHandler = (
     return;
   }
 
-  if (env.NODE_ENV !== "production") {
-    console.error(err);
-  }
+  console.error(`[error] ${req.method} ${req.originalUrl}`, err);
 
   res.status(500).json({
     error: { code: "internal_error", message: "Internal server error" },

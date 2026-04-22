@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [production]
   workflow_dispatch:
 
 concurrency:
@@ -59,7 +59,20 @@ jobs:
       contents: read
       packages: read
     steps:
-      - name: Deploy over SSH
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload docker-compose.prod.yml
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: docker-compose.prod.yml
+          target: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Pull image & restart stack
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -68,9 +81,9 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             set -e
+            mkdir -p "${{ secrets.VPS_DEPLOY_PATH }}"
             cd "${{ secrets.VPS_DEPLOY_PATH }}"
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            git pull --ff-only
-            docker compose -f docker-compose.prod.yml --env-file .env.production pull
-            docker compose -f docker-compose.prod.yml --env-file .env.production up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker image prune -f

@@ -150,8 +150,8 @@ export const RestaurantTour3D = ({
       )}
 
       {/* --------- Gradient top + bottom --------- */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-black/80 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/90 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b from-black/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-linear-to-t from-black/90 to-transparent" />
 
       {/* --------- Header : infos restaurant --------- */}
       <header
