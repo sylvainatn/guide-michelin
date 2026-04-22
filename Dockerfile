@@ -1,32 +1,25 @@
-# syntax=docker/dockerfile:1.6
+# syntax=docker/dockerfile:1.7
 
 # ---------- base ----------
 FROM node:20.18-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
-# ---------- deps (full, for build) ----------
+# ---------- deps (install complet pour le build) ----------
 FROM base AS deps
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm \
+COPY prisma ./prisma
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --no-audit --no-fund
 
-# ---------- builder ----------
+# ---------- builder (build Next + prune des devDependencies) ----------
 FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate && npm run build
-
-# ---------- prod-deps (runtime only) ----------
-FROM base AS prod-deps
-COPY package.json package-lock.json ./
-# --ignore-scripts : évite le postinstall de `prisma` qui cherche `schema.prisma`
-# absent de ce stage. Le client Prisma est généré dans le stage `builder` et
-# copié via `app/generated/prisma/` dans le runner.
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev --ignore-scripts --no-audit --no-fund \
-    && npm cache clean --force
+RUN npx prisma generate \
+    && npm run build \
+    && npm prune --omit=dev --ignore-scripts
 
 # ---------- runner ----------
 FROM base AS runner
@@ -39,21 +32,21 @@ RUN apk add --no-cache openssl tini wget \
     && addgroup -S michelin \
     && adduser -S -u 1001 -G michelin michelin
 
-COPY --from=prod-deps --chown=michelin:michelin /app/node_modules       ./node_modules
-COPY --from=builder   --chown=michelin:michelin /app/.next              ./.next
-COPY --from=builder   --chown=michelin:michelin /app/public             ./public
-COPY --from=builder   --chown=michelin:michelin /app/app                ./app
-COPY --from=builder   --chown=michelin:michelin /app/api                ./api
-COPY --from=builder   --chown=michelin:michelin /app/lib                ./lib
-COPY --from=builder   --chown=michelin:michelin /app/components         ./components
-COPY --from=builder   --chown=michelin:michelin /app/prisma             ./prisma
-COPY --from=builder   --chown=michelin:michelin /app/next.config.ts     ./next.config.ts
-COPY --from=builder   --chown=michelin:michelin /app/next-env.d.ts      ./next-env.d.ts
-COPY --from=builder   --chown=michelin:michelin /app/tsconfig.json      ./tsconfig.json
-COPY --from=builder   --chown=michelin:michelin /app/postcss.config.mjs ./postcss.config.mjs
-COPY --from=builder   --chown=michelin:michelin /app/prisma.config.ts   ./prisma.config.ts
-COPY --from=builder   --chown=michelin:michelin /app/package.json       ./package.json
-COPY --from=builder   --chown=michelin:michelin /app/package-lock.json  ./package-lock.json
+COPY --from=builder --chown=michelin:michelin /app/node_modules       ./node_modules
+COPY --from=builder --chown=michelin:michelin /app/.next              ./.next
+COPY --from=builder --chown=michelin:michelin /app/public             ./public
+COPY --from=builder --chown=michelin:michelin /app/app                ./app
+COPY --from=builder --chown=michelin:michelin /app/api                ./api
+COPY --from=builder --chown=michelin:michelin /app/lib                ./lib
+COPY --from=builder --chown=michelin:michelin /app/components         ./components
+COPY --from=builder --chown=michelin:michelin /app/prisma             ./prisma
+COPY --from=builder --chown=michelin:michelin /app/next.config.ts     ./next.config.ts
+COPY --from=builder --chown=michelin:michelin /app/next-env.d.ts      ./next-env.d.ts
+COPY --from=builder --chown=michelin:michelin /app/tsconfig.json      ./tsconfig.json
+COPY --from=builder --chown=michelin:michelin /app/postcss.config.mjs ./postcss.config.mjs
+COPY --from=builder --chown=michelin:michelin /app/prisma.config.ts   ./prisma.config.ts
+COPY --from=builder --chown=michelin:michelin /app/package.json       ./package.json
+COPY --from=builder --chown=michelin:michelin /app/package-lock.json  ./package-lock.json
 
 COPY --chown=michelin:michelin docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh \
