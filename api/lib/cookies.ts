@@ -6,7 +6,7 @@ export const REFRESH_COOKIE = "refresh_token";
 const baseOptions: CookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  secure: env.NODE_ENV === "production",
+  secure: env.COOKIE_SECURE,
   // Omis en dev : Chrome rejette `domain=localhost` et laisser undefined
   // scope correctement le cookie à l'hôte.
   domain: env.NODE_ENV === "production" ? env.COOKIE_DOMAIN : undefined,

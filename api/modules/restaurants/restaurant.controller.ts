@@ -68,6 +68,9 @@ export const listFeed = async (_req: Request, res: Response) => {
       description: true,
       address: true,
       videoUrl: true,
+      chefName: true,
+      stars: true,
+      style: true,
       createdAt: true,
     },
   });

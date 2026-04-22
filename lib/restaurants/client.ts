@@ -55,6 +55,9 @@ export type FeedRestaurantDTO = {
   description: string;
   address: string;
   videoUrl: string;
+  chefName: string | null;
+  stars: number | null;
+  style: string[];
   createdAt: string;
 };
 

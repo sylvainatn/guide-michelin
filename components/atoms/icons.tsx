@@ -226,6 +226,53 @@ export const StarSparkleIcon = (props: IconProps) => (
   </svg>
 );
 
+export const SearchIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+);
+
+export const BookmarkIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M6 4h12v17l-6-4-6 4V4Z" />
+  </svg>
+);
+
+export const BookmarkFilledIcon = (props: IconProps) => (
+  <svg {...base} {...props} fill="currentColor" stroke="none">
+    <path d="M6 4h12v17l-6-4-6 4V4Z" />
+  </svg>
+);
+
+export const ShareIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="6" cy="12" r="2.5" />
+    <circle cx="18" cy="6" r="2.5" />
+    <circle cx="18" cy="18" r="2.5" />
+    <path d="m8 11 8-4M8 13l8 4" />
+  </svg>
+);
+
+export const HeartFilledIcon = (props: IconProps) => (
+  <svg {...base} {...props} fill="currentColor" stroke="none">
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" />
+  </svg>
+);
+
+export const CubeIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M12 3 4 7v10l8 4 8-4V7l-8-4Z" />
+    <path d="M4 7l8 4 8-4M12 11v10" />
+  </svg>
+);
+
+export const StarFilledIcon = (props: IconProps) => (
+  <svg {...base} {...props} fill="currentColor" stroke="none">
+    <path d="m12 3 2.6 6 6.4.5-4.9 4.3 1.5 6.2L12 16.9 6.4 20l1.5-6.2L3 9.5l6.4-.5L12 3Z" />
+  </svg>
+);
+
 export const PinIcon = (props: IconProps) => (
   <svg {...base} {...props}>
     <path d="M12 21s-7-6.3-7-11a7 7 0 1 1 14 0c0 4.7-7 11-7 11Z" />

@@ -11,6 +11,11 @@ const envSchema = z.object({
   JWT_REFRESH_TTL: z.coerce.number().default(60 * 60 * 24 * 30),
   // Appliqué uniquement en production (cf. api/lib/cookies.ts).
   COOKIE_DOMAIN: z.string().optional(),
+  // `true` quand l'app est derrière HTTPS ; laisser `false` pour un VPS sans TLS.
+  COOKIE_SECURE: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
   WEB_ORIGIN: z.string().default("http://localhost:3000"),
 });
 

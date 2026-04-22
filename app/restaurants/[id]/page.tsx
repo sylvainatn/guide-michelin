@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ErrorText } from "../../../components/atoms/ErrorText";
 import { MutedText } from "../../../components/atoms/MutedText";
@@ -30,11 +30,12 @@ const RestaurantTour3D = dynamic(
 export default function RestaurantDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const id = params?.id;
   const { status, getAccessToken } = useAuth();
   const [restaurant, setRestaurant] = useState<RestaurantDetailDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tourOpen, setTourOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(() => searchParams?.get("tour") === "1");
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/signin");
