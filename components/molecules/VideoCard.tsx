@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FeedRestaurantDTO } from "../../lib/restaurants/client";
 import { MuteToggle } from "../atoms/MuteToggle";
 import { Video } from "../atoms/Video";
+import { VideoPlayIndicator } from "../atoms/VideoPlayIndicator";
 import { VideoProgress } from "../atoms/VideoProgress";
 import { FeedActionRail } from "./FeedActionRail";
 import { FeedSheet } from "./FeedSheet";
@@ -13,12 +14,13 @@ const TABLET_HOTELS = "Tablet Hotels";
 
 const personaFrom = (style: string[]) => {
   if (style.length === 0) return "Pour vous";
-  return style.join(" · ");
+  return ["Pour vous", ...style].join(" · ");
 };
 
 export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [muted, setMuted] = useState(true);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -39,11 +41,31 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    el.addEventListener("play", onPlay);
+    el.addEventListener("pause", onPause);
+    return () => {
+      el.removeEventListener("play", onPlay);
+      el.removeEventListener("pause", onPause);
+    };
+  }, []);
+
   const toggleMute = () => {
     const el = videoRef.current;
     if (!el) return;
     el.muted = !el.muted;
     setMuted(el.muted);
+  };
+
+  const togglePlay = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    if (el.paused) void el.play().catch(() => {});
+    else el.pause();
   };
 
   return (
@@ -52,15 +74,17 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
         ref={videoRef}
         src={item.videoUrl}
         muted={muted}
-        onClick={toggleMute}
+        onClick={togglePlay}
       />
 
       <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/35 via-transparent to-transparent" />
 
+      <VideoPlayIndicator playing={playing} />
+
       <FeedTopbar persona={personaFrom(item.style)} />
       <FeedActionRail />
 
-      <div className="absolute bottom-44 right-4 z-10">
+      <div className="absolute right-4 top-20 z-20">
         <MuteToggle muted={muted} onToggle={toggleMute} />
       </div>
 
@@ -72,7 +96,7 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
         partnerTag={item.stars && item.stars >= 1 ? TABLET_HOTELS : null}
       />
 
-      <div className="pointer-events-none absolute bottom-44 left-0 right-0 z-10">
+      <div className="absolute inset-x-0 bottom-0 z-30">
         <VideoProgress videoRef={videoRef} />
       </div>
     </article>
