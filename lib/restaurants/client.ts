@@ -49,6 +49,20 @@ export type CreateRestaurantInput = {
   style?: string[];
 };
 
+// Pour PATCH : `undefined` = champ inchange, `null` = efface la valeur
+// cote back (optionnel). Les champs requis cote modele (name/description/
+// address) ne peuvent pas etre mis a null.
+export type UpdateRestaurantInput = {
+  name?: string;
+  description?: string;
+  address?: string;
+  videoUrl?: string | null;
+  chefName?: string | null;
+  stars?: number | null;
+  priceRange?: PriceRange | null;
+  style?: string[];
+};
+
 export type FeedRestaurantDTO = {
   id: string;
   name: string;
@@ -84,6 +98,19 @@ export const restaurantApi = {
   getById: (accessToken: string, id: string) =>
     request<{ restaurant: RestaurantDetailDTO }>(`/restaurants/${id}`, {
       method: "GET",
+      accessToken,
+    }),
+
+  update: (accessToken: string, id: string, input: UpdateRestaurantInput) =>
+    request<{ restaurant: RestaurantDTO }>(`/restaurants/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+      accessToken,
+    }),
+
+  remove: (accessToken: string, id: string) =>
+    request<void>(`/restaurants/${id}`, {
+      method: "DELETE",
       accessToken,
     }),
 

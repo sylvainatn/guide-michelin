@@ -15,6 +15,18 @@ restaurantRouter.get("/:id", requireAuth, restaurantController.getById);
 // Admin-only : gestion des établissements.
 restaurantRouter.post("/", requireAuth, requireAdmin, restaurantController.create);
 restaurantRouter.get("/", requireAuth, requireAdmin, restaurantController.listMine);
+restaurantRouter.patch(
+  "/:id",
+  requireAuth,
+  requireAdmin,
+  restaurantController.update,
+);
+restaurantRouter.delete(
+  "/:id",
+  requireAuth,
+  requireAdmin,
+  restaurantController.remove,
+);
 restaurantRouter.post(
   "/video",
   requireAuth,
