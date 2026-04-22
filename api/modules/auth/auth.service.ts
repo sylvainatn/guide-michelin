@@ -14,21 +14,25 @@ type Ctx = { userAgent?: string; ipAddress?: string };
 export const signup = async (
   input: {
     email: string;
+    pseudo: string;
     password: string;
     lastName: string;
     firstName: string;
   },
   ctx: Ctx,
 ) => {
-  const existing = await prisma.user.findUnique({
-    where: { email: input.email },
-  });
-  if (existing) throw Conflict("email_taken", "Email already registered");
+  const [emailTaken, pseudoTaken] = await Promise.all([
+    prisma.user.findUnique({ where: { email: input.email } }),
+    prisma.user.findUnique({ where: { pseudo: input.pseudo } }),
+  ]);
+  if (emailTaken) throw Conflict("email_taken", "Email already registered");
+  if (pseudoTaken) throw Conflict("pseudo_taken", "Pseudo already taken");
 
   const passwordHash = await hashPassword(input.password);
   const user = await prisma.user.create({
     data: {
       email: input.email,
+      pseudo: input.pseudo,
       passwordHash,
       lastName: input.lastName,
       firstName: input.firstName,
@@ -50,10 +54,13 @@ export const signup = async (
 };
 
 export const login = async (
-  input: { email: string; password: string },
+  input: { identifier: string; password: string },
   ctx: Ctx,
 ) => {
-  const user = await prisma.user.findUnique({ where: { email: input.email } });
+  const isEmail = input.identifier.includes("@");
+  const user = await prisma.user.findUnique({
+    where: isEmail ? { email: input.identifier } : { pseudo: input.identifier },
+  });
   if (!user) throw Unauthorized("invalid_credentials", "Invalid credentials");
 
   const ok = await verifyPassword(input.password, user.passwordHash);
@@ -104,9 +111,15 @@ export const me = async (userId: string) => {
   return publicUser(user);
 };
 
+export const isPseudoAvailable = async (pseudo: string) => {
+  const existing = await prisma.user.findUnique({ where: { pseudo } });
+  return !existing;
+};
+
 const publicUser = (user: {
   id: string;
   email: string;
+  pseudo: string;
   lastName: string;
   firstName: string;
   emailVerified: Date | null;
@@ -115,6 +128,7 @@ const publicUser = (user: {
 }) => ({
   id: user.id,
   email: user.email,
+  pseudo: user.pseudo,
   lastName: user.lastName,
   firstName: user.firstName,
   emailVerified: user.emailVerified,

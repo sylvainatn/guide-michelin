@@ -62,3 +62,34 @@ body {
 .feed-scroll::-webkit-scrollbar {
   display: none;
 }
+
+/* Red range slider used in the onboarding flow (age, budget). */
+.slider-red {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: #e5e5e5;
+  outline: none;
+}
+.slider-red::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(192, 1, 44, 0.35);
+  cursor: pointer;
+}
+.slider-red::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(192, 1, 44, 0.35);
+  cursor: pointer;
+}

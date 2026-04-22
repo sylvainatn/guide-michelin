@@ -7,6 +7,7 @@ export type Role = "USER" | "ADMIN";
 export type PublicUser = {
   id: string;
   email: string;
+  pseudo: string;
   lastName: string;
   firstName: string;
   emailVerified: string | null;
@@ -62,14 +63,73 @@ export const request = async <T>(
   return body as T;
 };
 
+export type TravelEnvironment = "SEA" | "MOUNTAINS" | "VINEYARDS" | "CITY";
+export type CuisineStyle = "TRADITION" | "CREATIVITY" | "ECO";
+export type TravelStyle =
+  | "GASTRONOMIC"
+  | "ADVENTURE"
+  | "CULTURE"
+  | "ROMANCE";
+export type TravelPace = "SLOW" | "ROADTRIP";
+export type TripDuration =
+  | "ONE_NIGHT"
+  | "SHORT_BREAK"
+  | "ONE_WEEK"
+  | "EXTENDED";
+export type BudgetTier = "DISCOVERY" | "EXCELLENCE" | "PRESTIGE";
+
+export type UserProfile = {
+  id: string;
+  userId: string;
+  age: number | null;
+  environments: TravelEnvironment[];
+  cuisines: CuisineStyle[];
+  travelStyle: TravelStyle | null;
+  travelPace: TravelPace | null;
+  tripDuration: TripDuration | null;
+  budgetPerNight: number | null;
+  budgetTier: BudgetTier | null;
+  onboardingCompletedAt: string | null;
+};
+
+export type UpdateProfileInput = {
+  age?: number;
+  environments?: TravelEnvironment[];
+  cuisines?: CuisineStyle[];
+  travelStyle?: TravelStyle;
+  travelPace?: TravelPace;
+  tripDuration?: TripDuration;
+  budgetPerNight?: number;
+  budgetTier?: BudgetTier;
+  completed?: boolean;
+};
+
+export const profileApi = {
+  get: (accessToken: string) =>
+    request<{ profile: UserProfile | null }>("/me/profile", { accessToken }),
+
+  update: (input: UpdateProfileInput, accessToken: string) =>
+    request<{ profile: UserProfile }>("/me/profile", {
+      method: "PUT",
+      body: JSON.stringify(input),
+      accessToken,
+    }),
+};
+
 export const authApi = {
-  signup: (input: { email: string; password: string; lastName: string; firstName: string }) =>
+  signup: (input: {
+    email: string;
+    pseudo: string;
+    password: string;
+    lastName: string;
+    firstName: string;
+  }) =>
     request<AuthResponse>("/auth/signup", {
       method: "POST",
       body: JSON.stringify(input),
     }),
 
-  login: (input: { email: string; password: string }) =>
+  login: (input: { identifier: string; password: string }) =>
     request<AuthResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(input),

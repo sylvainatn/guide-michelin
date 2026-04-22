@@ -12,9 +12,48 @@ enum Role {
   ADMIN
 }
 
+enum TravelEnvironment {
+  SEA
+  MOUNTAINS
+  VINEYARDS
+  CITY
+}
+
+enum CuisineStyle {
+  TRADITION
+  CREATIVITY
+  ECO
+}
+
+enum TravelStyle {
+  GASTRONOMIC
+  ADVENTURE
+  CULTURE
+  ROMANCE
+}
+
+enum TravelPace {
+  SLOW
+  ROADTRIP
+}
+
+enum TripDuration {
+  ONE_NIGHT
+  SHORT_BREAK
+  ONE_WEEK
+  EXTENDED
+}
+
+enum BudgetTier {
+  DISCOVERY
+  EXCELLENCE
+  PRESTIGE
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
+  pseudo        String    @unique
   passwordHash  String
   lastName      String
   firstName     String
@@ -25,8 +64,28 @@ model User {
   role          Role        @default(USER)
   restaurants   Restaurant[]
   articles    Article[]
+  profile       UserProfile?
 
   @@map("users")
+}
+
+model UserProfile {
+  id                    String              @id @default(uuid())
+  userId                String              @unique
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                   Int?
+  environments          TravelEnvironment[]
+  cuisines              CuisineStyle[]
+  travelStyle           TravelStyle?
+  travelPace            TravelPace?
+  tripDuration          TripDuration?
+  budgetPerNight        Int?
+  budgetTier            BudgetTier?
+  onboardingCompletedAt DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@map("user_profiles")
 }
 
 model Session {

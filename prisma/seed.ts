@@ -6,6 +6,7 @@ import { DEFAULT_TOUR_CONFIG, type TourConfig } from "../lib/restaurants/tour-st
 const seedUsers = [
   {
     email: "admin@michelin.local",
+    pseudo: "admin",
     password: "Admin1234!",
     firstName: "Ada",
     lastName: "Admin",
@@ -13,6 +14,7 @@ const seedUsers = [
   },
   {
     email: "user@michelin.local",
+    pseudo: "ulysse",
     password: "User1234!",
     firstName: "Ulysse",
     lastName: "User",
@@ -94,6 +96,7 @@ async function main() {
     const user = await prisma.user.upsert({
       where: { email: u.email },
       update: {
+        pseudo: u.pseudo,
         firstName: u.firstName,
         lastName: u.lastName,
         role: u.role,
@@ -101,6 +104,7 @@ async function main() {
       },
       create: {
         email: u.email,
+        pseudo: u.pseudo,
         firstName: u.firstName,
         lastName: u.lastName,
         role: u.role,

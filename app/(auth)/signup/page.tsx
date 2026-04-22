@@ -1,21 +1,14 @@
-import { AuthFooterLink } from "../../../components/molecules/AuthFooterLink";
-import { PageHeader } from "../../../components/molecules/PageHeader";
+import { AuthHero } from "../../../components/molecules/AuthHero";
+import { AuthSheet } from "../../../components/molecules/AuthSheet";
 import { SignUpForm } from "../../../components/organisms/SignUpForm";
 
 export default function SignUpPage() {
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Créer un compte"
-        subtitle="Rejoins le Guide Michelin."
-        align="center"
-      />
-      <SignUpForm />
-      <AuthFooterLink
-        question="Déjà un compte ?"
-        linkLabel="Se connecter"
-        href="/signin"
-      />
+    <div className="flex min-h-full flex-col">
+      <AuthHero />
+      <AuthSheet>
+        <SignUpForm />
+      </AuthSheet>
     </div>
   );
 }

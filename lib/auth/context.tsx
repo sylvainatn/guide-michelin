@@ -17,8 +17,14 @@ type AuthState = {
 };
 
 type AuthContextValue = AuthState & {
-  signup: (input: { email: string; password: string; lastName: string; firstName: string }) => Promise<void>;
-  login: (input: { email: string; password: string }) => Promise<void>;
+  signup: (input: {
+    email: string;
+    pseudo: string;
+    password: string;
+    lastName: string;
+    firstName: string;
+  }) => Promise<void>;
+  login: (input: { identifier: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => string | null;
 };
