@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "node:path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -15,6 +16,16 @@ app.set("trust proxy", 1);
 app.use(cors({ origin: env.WEB_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Next en prod scanne `public/` au démarrage : les fichiers uploadés ensuite
+// ne sont pas servis. On les sert depuis Express qui lit le disque à chaque requête.
+app.use(
+  "/uploads",
+  express.static(path.resolve(process.cwd(), "public", "uploads"), {
+    fallthrough: false,
+    index: false,
+  }),
+);
 
 app.get("/health", async (_req, res) => {
   const pong = await redis.ping();

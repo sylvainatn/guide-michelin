@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
           source: "/api/:path*",
           destination: "http://127.0.0.1:4000/:path*",
         },
+        // Next ne sert pas les fichiers ajoutés dans `public/` après le démarrage :
+        // on délègue `/uploads/*` à Express qui lit le disque à chaque requête.
+        {
+          source: "/uploads/:path*",
+          destination: "http://127.0.0.1:4000/uploads/:path*",
+        },
       ],
     };
   },
