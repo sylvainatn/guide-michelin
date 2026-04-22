@@ -116,6 +116,33 @@ export const profileApi = {
     }),
 };
 
+export type UpdateUserInput = {
+  firstName?: string;
+  lastName?: string;
+  pseudo?: string;
+};
+
+export type ChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export const userApi = {
+  updateMe: (input: UpdateUserInput, accessToken: string) =>
+    request<{ user: PublicUser }>("/me", {
+      method: "PATCH",
+      body: JSON.stringify(input),
+      accessToken,
+    }),
+
+  changePassword: (input: ChangePasswordInput, accessToken: string) =>
+    request<void>("/me/password", {
+      method: "POST",
+      body: JSON.stringify(input),
+      accessToken,
+    }),
+};
+
 export const authApi = {
   signup: (input: {
     email: string;

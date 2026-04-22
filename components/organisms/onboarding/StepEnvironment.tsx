@@ -20,7 +20,6 @@ type Item = {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
-  tone: "blue" | "green" | "amber" | "neutral";
 };
 
 const ITEMS: Item[] = [
@@ -29,28 +28,24 @@ const ITEMS: Item[] = [
     icon: <WaveIcon className="size-6" />,
     title: "Bord de mer",
     subtitle: "Côtes & Plages",
-    tone: "blue",
   },
   {
     key: "MOUNTAINS",
     icon: <MountainIcon className="size-6" />,
     title: "Sommets",
     subtitle: "Alpes & Pyrénées",
-    tone: "green",
   },
   {
     key: "VINEYARDS",
     icon: <GrapeIcon className="size-6" />,
     title: "Vignes",
     subtitle: "Bordeaux, Bourgogne",
-    tone: "amber",
   },
   {
     key: "CITY",
     icon: <BuildingIcon className="size-6" />,
     title: "Ville",
     subtitle: "Paris, Lyon, Nice",
-    tone: "neutral",
   },
 ];
 
@@ -100,7 +95,6 @@ export const StepEnvironment = ({ state, setState, onNext }: StepProps) => {
             icon={it.icon}
             title={it.title}
             subtitle={it.subtitle}
-            tone={it.tone}
             selected={state.environments.includes(it.key)}
             onClick={() => toggle(it.key)}
           />

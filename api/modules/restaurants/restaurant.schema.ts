@@ -12,6 +12,12 @@ export const createRestaurantSchema = z.object({
     .max(2000)
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
+  mainImageUrl: z
+    .string()
+    .trim()
+    .max(2000)
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
   chefName: z.string().trim().min(1).max(200).optional(),
   stars: z.number().int().min(0).max(3).optional(),
   priceRange: z.enum(["EUR", "EUREUR", "EUREUREUR", "EUREUREUREUR"]).optional(),
@@ -29,6 +35,14 @@ export const updateRestaurantSchema = z
     description: z.string().trim().min(1).max(5000).optional(),
     address: z.string().trim().min(1).max(500).optional(),
     videoUrl: z
+      .union([z.string().trim().max(2000), z.null()])
+      .optional()
+      .transform((v) => {
+        if (v === undefined) return undefined;
+        if (v === null) return null;
+        return v.length > 0 ? v : null;
+      }),
+    mainImageUrl: z
       .union([z.string().trim().max(2000), z.null()])
       .optional()
       .transform((v) => {

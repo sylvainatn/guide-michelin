@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FeedRestaurantDTO } from "../../lib/restaurants/client";
+import { shareRestaurant } from "../../lib/restaurants/share";
 import { MuteToggle } from "../atoms/MuteToggle";
 import { Video } from "../atoms/Video";
 import { VideoPlayIndicator } from "../atoms/VideoPlayIndicator";
@@ -9,6 +11,9 @@ import { VideoProgress } from "../atoms/VideoProgress";
 import { FeedActionRail } from "./FeedActionRail";
 import { FeedSheet } from "./FeedSheet";
 import { FeedTopbar } from "./FeedTopbar";
+
+const SWIPE_THRESHOLD_PX = 70;
+const SWIPE_MAX_VERTICAL_DRIFT = 60;
 
 const TABLET_HOTELS = "Tablet Hotels";
 
@@ -18,7 +23,9 @@ const personaFrom = (style: string[]) => {
 };
 
 export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
 
@@ -68,8 +75,35 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
     else el.pause();
   };
 
+  const handleShare = useCallback(() => {
+    void shareRestaurant({ id: item.id, name: item.name });
+  }, [item.id, item.name]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    if (!t) return;
+    swipeStart.current = { x: t.clientX, y: t.clientY };
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (dx <= -SWIPE_THRESHOLD_PX && Math.abs(dy) < SWIPE_MAX_VERTICAL_DRIFT) {
+      router.push(`/restaurants/${item.id}`);
+    }
+  };
+
   return (
-    <article className="relative h-full w-full overflow-hidden bg-black">
+    <article
+      className="relative h-full w-full overflow-hidden bg-black"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       <Video
         ref={videoRef}
         src={item.videoUrl}
@@ -82,7 +116,12 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
       <VideoPlayIndicator playing={playing} />
 
       <FeedTopbar persona={personaFrom(item.style)} />
-      <FeedActionRail />
+      <FeedActionRail
+        restaurantId={item.id}
+        initialSaved={item.bookmarkedByMe}
+        initialFavorited={item.favoritedByMe}
+        onShare={handleShare}
+      />
 
       <div className="absolute right-4 top-20 z-20">
         <MuteToggle muted={muted} onToggle={toggleMute} />

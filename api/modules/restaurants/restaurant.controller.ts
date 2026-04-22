@@ -35,6 +35,7 @@ export const create = async (req: Request, res: Response) => {
       description: input.description,
       address: input.address,
       videoUrl: input.videoUrl,
+      mainImageUrl: input.mainImageUrl,
       chefName: input.chefName,
       stars: input.stars,
       priceRange: input.priceRange,
@@ -58,6 +59,7 @@ export const getById = async (req: Request, res: Response) => {
       description: true,
       address: true,
       videoUrl: true,
+      mainImageUrl: true,
       chefName: true,
       stars: true,
       priceRange: true,
@@ -65,6 +67,21 @@ export const getById = async (req: Request, res: Response) => {
       tourStops: true,
       photos360: true,
       createdAt: true,
+      review: {
+        select: {
+          productsScore: true,
+          harmonyScore: true,
+          masteryScore: true,
+          personalityScore: true,
+          regularityScore: true,
+          inspectorName: true,
+          verdict: true,
+          priceFromEur: true,
+          tripDuration: true,
+          partnerBadge: true,
+          locationLabel: true,
+        },
+      },
     },
   });
   if (!restaurant) throw NotFound("restaurant_not_found", "Restaurant introuvable.");
@@ -96,6 +113,9 @@ export const update = async (req: Request, res: Response) => {
         : {}),
       ...(input.address !== undefined ? { address: input.address } : {}),
       ...(input.videoUrl !== undefined ? { videoUrl: input.videoUrl } : {}),
+      ...(input.mainImageUrl !== undefined
+        ? { mainImageUrl: input.mainImageUrl }
+        : {}),
       ...(input.chefName !== undefined ? { chefName: input.chefName } : {}),
       ...(input.stars !== undefined ? { stars: input.stars } : {}),
       ...(input.priceRange !== undefined
@@ -123,21 +143,44 @@ export const remove = async (req: Request, res: Response) => {
   res.status(204).end();
 };
 
-export const listFeed = async (_req: Request, res: Response) => {
-  const restaurants = await prisma.restaurant.findMany({
-    where: { videoUrl: { not: null } },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      address: true,
-      videoUrl: true,
-      chefName: true,
-      stars: true,
-      style: true,
-      createdAt: true,
-    },
-  });
-  res.json({ restaurants });
+export const listFeed = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  const [restaurants, bookmarks, favorites] = await Promise.all([
+    prisma.restaurant.findMany({
+      where: { videoUrl: { not: null } },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        address: true,
+        videoUrl: true,
+        mainImageUrl: true,
+        chefName: true,
+        stars: true,
+        style: true,
+        createdAt: true,
+      },
+    }),
+    prisma.bookmark.findMany({
+      where: { userId },
+      select: { restaurantId: true },
+    }),
+    prisma.favorite.findMany({
+      where: { userId },
+      select: { restaurantId: true },
+    }),
+  ]);
+
+  const bookmarkedSet = new Set(bookmarks.map((b) => b.restaurantId));
+  const favoritedSet = new Set(favorites.map((f) => f.restaurantId));
+
+  const enriched = restaurants.map((r) => ({
+    ...r,
+    bookmarkedByMe: bookmarkedSet.has(r.id),
+    favoritedByMe: favoritedSet.has(r.id),
+  }));
+
+  res.json({ restaurants: enriched });
 };

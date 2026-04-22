@@ -5,16 +5,19 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ErrorText } from "../../../components/atoms/ErrorText";
 import { MutedText } from "../../../components/atoms/MutedText";
-import { RestaurantHero } from "../../../components/organisms/RestaurantHero";
+import { ShareIcon } from "../../../components/atoms/icons";
+import { PreferencesTopBar } from "../../../components/molecules/PreferencesTopBar";
+import { RestaurantDetailHero } from "../../../components/molecules/RestaurantDetailHero";
+import { MichelinReviewSection } from "../../../components/organisms/MichelinReviewSection";
 import { ApiError } from "../../../lib/auth/client";
 import { useAuth } from "../../../lib/auth/context";
 import {
   type RestaurantDetailDTO,
   restaurantApi,
 } from "../../../lib/restaurants/client";
+import { shareRestaurant } from "../../../lib/restaurants/share";
 import { isTourConfig } from "../../../lib/restaurants/tour-stops";
 
-// Lazy load : le bundle Three.js n'est telecharge qu'au moment d'ouvrir la visite.
 const RestaurantTour3D = dynamic(
   () => import("../../../components/organisms/RestaurantTour3D"),
   {
@@ -70,33 +73,12 @@ export default function RestaurantDetailPage() {
 
   const handleShare = useCallback(async () => {
     if (!restaurant) return;
-    const shareData = {
-      title: restaurant.name,
-      text: `Decouvre ${restaurant.name} sur le Guide Michelin.`,
-      url: typeof window !== "undefined" ? window.location.href : "",
-    };
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share(
-          shareData,
-        );
-        return;
-      } catch {
-        // User cancelled or unsupported -- fall through.
-      }
-    }
-    if (typeof navigator !== "undefined" && navigator.clipboard && shareData.url) {
-      await navigator.clipboard.writeText(shareData.url).catch(() => {});
-    }
+    await shareRestaurant({ id: restaurant.id, name: restaurant.name });
   }, [restaurant]);
 
   const handleReserve = useCallback(() => {
-    // Placeholder : a brancher sur le module de resa quand dispo.
-    // Pour l'instant, on ouvre un mailto vers le chef / l'adresse.
     if (!restaurant) return;
-    const subject = encodeURIComponent(
-      `Reservation -- ${restaurant.name}`,
-    );
+    const subject = encodeURIComponent(`Reservation -- ${restaurant.name}`);
     window.open(`mailto:?subject=${subject}`, "_blank");
   }, [restaurant]);
 
@@ -124,34 +106,83 @@ export default function RestaurantDetailPage() {
     );
   }
 
-  const tourConfig = isTourConfig(restaurant.tourStops) ? restaurant.tourStops : null;
+  const tourConfig = isTourConfig(restaurant.tourStops)
+    ? restaurant.tourStops
+    : null;
+  const review = restaurant.review;
 
   return (
-    <main className="flex flex-1 flex-col bg-secondary">
-      <RestaurantHero
-        restaurant={restaurant}
-        onOpenTour={() => setTourOpen(true)}
-        onReserve={handleReserve}
-        onShare={handleShare}
-        onSave={() => {}}
-        onBack={() => router.back()}
-      />
-
-      {tourOpen && (
-        <RestaurantTour3D
-          restaurantName={restaurant.name}
-          chefName={restaurant.chefName}
-          stars={restaurant.stars}
-          address={restaurant.address}
-          style={restaurant.style}
-          priceRange={restaurant.priceRange}
-          tourConfig={tourConfig}
-          wallTextures={restaurant.photos360}
-          onClose={() => setTourOpen(false)}
-          onReserve={handleReserve}
-          onShare={handleShare}
+    <main className="flex flex-1 items-stretch justify-center bg-white md:items-center md:px-4 md:py-6">
+      <div className="relative w-full bg-white px-5 pt-6 md:h-[calc(100dvh-3rem)] md:max-h-225 md:w-[min(420px,100%)] md:overflow-y-auto md:rounded-3xl md:shadow-2xl md:ring-1 md:ring-black/10">
+        <PreferencesTopBar
+          title={restaurant.name}
+          onBack={() => router.back()}
+          rightAction={
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label="Partager"
+              className="flex size-9 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+            >
+              <ShareIcon className="size-4" />
+            </button>
+          }
         />
-      )}
+
+        <div className="flex flex-col gap-6 pb-24">
+          <RestaurantDetailHero
+            name={restaurant.name}
+            mediaUrl={restaurant.mainImageUrl ?? restaurant.videoUrl}
+            stars={restaurant.stars}
+            priceFromEur={review?.priceFromEur ?? null}
+            tripDuration={review?.tripDuration ?? null}
+            partnerBadge={review?.partnerBadge ?? null}
+            locationLabel={review?.locationLabel ?? null}
+            fallbackLocation={restaurant.address}
+          />
+
+          {review ? (
+            <MichelinReviewSection review={review} />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-neutral-200 px-4 py-6 text-center text-sm text-neutral-500">
+              Aucune critique Michelin n&apos;est encore disponible.
+            </p>
+          )}
+
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => setTourOpen(true)}
+              className="inline-flex h-12 items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 text-[13px] font-semibold text-tertiary hover:border-primary hover:text-primary"
+            >
+              Ouvrir la visite 3D
+            </button>
+            <button
+              type="button"
+              onClick={handleReserve}
+              className="inline-flex h-12 items-center justify-center rounded-xl bg-primary px-4 text-[13px] font-semibold text-white hover:bg-michelin-red-500"
+            >
+              Réserver cette escapade →
+            </button>
+          </div>
+        </div>
+
+        {tourOpen && (
+          <RestaurantTour3D
+            restaurantName={restaurant.name}
+            chefName={restaurant.chefName}
+            stars={restaurant.stars}
+            address={restaurant.address}
+            style={restaurant.style}
+            priceRange={restaurant.priceRange}
+            tourConfig={tourConfig}
+            wallTextures={restaurant.photos360}
+            onClose={() => setTourOpen(false)}
+            onReserve={handleReserve}
+            onShare={handleShare}
+          />
+        )}
+      </div>
     </main>
   );
 }

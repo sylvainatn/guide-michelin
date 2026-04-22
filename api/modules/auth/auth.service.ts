@@ -116,7 +116,7 @@ export const isPseudoAvailable = async (pseudo: string) => {
   return !existing;
 };
 
-const publicUser = (user: {
+export const publicUser = (user: {
   id: string;
   email: string;
   pseudo: string;

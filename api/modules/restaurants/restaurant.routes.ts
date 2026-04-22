@@ -2,7 +2,12 @@ import { Router } from "express";
 import { requireAdmin } from "../../middleware/require-admin";
 import { requireAuth } from "../../middleware/require-auth";
 import * as restaurantController from "./restaurant.controller";
-import { uploadVideo, videoUploadMiddleware } from "./restaurant.upload";
+import {
+  imageUploadMiddleware,
+  uploadImage,
+  uploadVideo,
+  videoUploadMiddleware,
+} from "./restaurant.upload";
 
 export const restaurantRouter = Router();
 
@@ -33,4 +38,11 @@ restaurantRouter.post(
   requireAdmin,
   videoUploadMiddleware,
   uploadVideo,
+);
+restaurantRouter.post(
+  "/image",
+  requireAuth,
+  requireAdmin,
+  imageUploadMiddleware,
+  uploadImage,
 );

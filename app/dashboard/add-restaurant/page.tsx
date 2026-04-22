@@ -23,6 +23,14 @@ const VIDEO_SOURCE_OPTIONS = [
   { value: "upload", label: "Uploader un fichier" },
 ] as const satisfies ReadonlyArray<{ value: VideoSource; label: string }>;
 
+type ImageSource = "none" | "url" | "upload";
+
+const IMAGE_SOURCE_OPTIONS = [
+  { value: "none", label: "Aucune" },
+  { value: "url", label: "Lien externe" },
+  { value: "upload", label: "Uploader un fichier" },
+] as const satisfies ReadonlyArray<{ value: ImageSource; label: string }>;
+
 export default function AddRestaurantPage() {
   const router = useRouter();
   const { user, status, getAccessToken } = useAuth();
@@ -36,6 +44,9 @@ export default function AddRestaurantPage() {
   const [videoSource, setVideoSource] = useState<VideoSource>("none");
   const [videoUrl, setVideoUrl] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [imageSource, setImageSource] = useState<ImageSource>("none");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -67,6 +78,20 @@ export default function AddRestaurantPage() {
         finalVideoUrl = url;
       }
 
+      let finalImageUrl: string | undefined;
+
+      if (imageSource === "url") {
+        finalImageUrl = imageUrl.trim() || undefined;
+      } else if (imageSource === "upload") {
+        if (!imageFile) {
+          setError("Sélectionne un fichier image.");
+          setPending(false);
+          return;
+        }
+        const { url } = await restaurantApi.uploadImage(token, imageFile);
+        finalImageUrl = url;
+      }
+
       const parsedStars = Number.parseInt(stars, 10);
       const trimmedStyle = style
         .split(",")
@@ -77,6 +102,7 @@ export default function AddRestaurantPage() {
         description,
         address,
         videoUrl: finalVideoUrl,
+        mainImageUrl: finalImageUrl,
         chefName: chefName.trim() || undefined,
         stars: parsedStars > 0 ? parsedStars : undefined,
         priceRange,
@@ -232,6 +258,51 @@ export default function AddRestaurantPage() {
               {videoFile && (
                 <MutedText>
                   {videoFile.name} — {(videoFile.size / (1024 * 1024)).toFixed(1)} Mo
+                </MutedText>
+              )}
+            </label>
+          )}
+        </fieldset>
+
+        <fieldset className="space-y-3 rounded-md border border-neutral-200 p-4">
+          <legend className="px-1 text-h2 text-neutral-700">
+            Image principale (optionnel)
+          </legend>
+
+          <RadioGroup
+            name="imageSource"
+            value={imageSource}
+            options={IMAGE_SOURCE_OPTIONS}
+            onChange={(next) => {
+              setImageSource(next);
+              if (next !== "url") setImageUrl("");
+              if (next !== "upload") setImageFile(null);
+            }}
+          />
+
+          {imageSource === "url" && (
+            <FormField
+              label="URL de l'image"
+              type="url"
+              value={imageUrl}
+              onChange={setImageUrl}
+              placeholder="https://images.example.com/photo.jpg"
+              maxLength={2000}
+            />
+          )}
+
+          {imageSource === "upload" && (
+            <label className="block space-y-1.5">
+              <Label>Fichier image (jpg, png, webp, avif — max 10 Mo)</Label>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-neutral-200"
+              />
+              {imageFile && (
+                <MutedText>
+                  {imageFile.name} — {(imageFile.size / (1024 * 1024)).toFixed(1)} Mo
                 </MutedText>
               )}
             </label>

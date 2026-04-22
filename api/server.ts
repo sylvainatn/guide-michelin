@@ -6,8 +6,11 @@ import express from "express";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/error-handler";
 import { authRouter } from "./modules/auth/auth.routes";
+import { interactionRouter } from "./modules/interactions/interaction.routes";
+import { paymentCardRouter } from "./modules/paymentCards/paymentCard.routes";
 import { profileRouter } from "./modules/profile/profile.routes";
 import { restaurantRouter } from "./modules/restaurants/restaurant.routes";
+import { userRouter } from "./modules/user/user.routes";
 import { redis } from "../lib/redis";
 
 const app = express();
@@ -34,6 +37,9 @@ app.get("/health", async (_req, res) => {
 
 app.use("/auth", authRouter);
 app.use("/me/profile", profileRouter);
+app.use("/me/payment-cards", paymentCardRouter);
+app.use("/me", userRouter);
+app.use("/me", interactionRouter);
 app.use("/restaurants", restaurantRouter);
 
 app.use(errorHandler);

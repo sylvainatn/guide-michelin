@@ -24,9 +24,13 @@ type AuthContextValue = AuthState & {
     lastName: string;
     firstName: string;
   }) => Promise<void>;
-  login: (input: { identifier: string; password: string }) => Promise<void>;
+  login: (input: {
+    identifier: string;
+    password: string;
+  }) => Promise<PublicUser>;
   logout: () => Promise<void>;
   getAccessToken: () => string | null;
+  updateUser: (user: PublicUser) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -80,6 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       login: async (input) => {
         const { user, accessToken } = await authApi.login(input);
         setSession(user, accessToken);
+        return user;
       },
       logout: async () => {
         try {
@@ -89,6 +94,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       },
       getAccessToken: () => accessTokenRef.current,
+      updateUser: (user) =>
+        setState((prev) =>
+          prev.status === "authenticated" ? { ...prev, user } : prev,
+        ),
     }),
     [state, setSession, clearSession],
   );

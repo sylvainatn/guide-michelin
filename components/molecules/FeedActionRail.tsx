@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { useAuth } from "../../lib/auth/context";
+import { restaurantApi } from "../../lib/restaurants/client";
 import {
   BookmarkFilledIcon,
   BookmarkIcon,
@@ -15,24 +17,27 @@ const Action = ({
   label,
   active = false,
   activeTint = false,
+  disabled = false,
   onClick,
 }: {
   icon: ReactNode;
   label: string;
   active?: boolean;
   activeTint?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }) => {
   const bg = activeTint
     ? "bg-primary text-white"
     : active
-    ? "bg-white text-primary"
-    : "bg-white/95 text-neutral-800";
+      ? "bg-white text-primary"
+      : "bg-white/95 text-neutral-800";
   return (
     <button
       type="button"
       onClick={onClick}
-      className="pointer-events-auto flex flex-col items-center gap-1"
+      disabled={disabled}
+      className="pointer-events-auto flex flex-col items-center gap-1 disabled:opacity-60"
     >
       <span
         className={`flex size-11 items-center justify-center rounded-full shadow ring-1 ring-black/5 ${bg}`}
@@ -46,13 +51,54 @@ const Action = ({
   );
 };
 
-export const FeedActionRail = ({
-  onShare,
-}: {
+type Props = {
+  restaurantId: string;
+  initialSaved: boolean;
+  initialFavorited: boolean;
   onShare?: () => void;
-} = {}) => {
-  const [saved, setSaved] = useState(false);
-  const [loved, setLoved] = useState(true);
+};
+
+export const FeedActionRail = ({
+  restaurantId,
+  initialSaved,
+  initialFavorited,
+  onShare,
+}: Props) => {
+  const { getAccessToken } = useAuth();
+  const [saved, setSaved] = useState(initialSaved);
+  const [loved, setLoved] = useState(initialFavorited);
+  const [savePending, setSavePending] = useState(false);
+  const [lovePending, setLovePending] = useState(false);
+
+  const toggleSave = async () => {
+    const token = getAccessToken();
+    if (!token || savePending) return;
+    const next = !saved;
+    setSaved(next);
+    setSavePending(true);
+    try {
+      await restaurantApi.setBookmark(token, restaurantId, next);
+    } catch {
+      setSaved(!next);
+    } finally {
+      setSavePending(false);
+    }
+  };
+
+  const toggleLove = async () => {
+    const token = getAccessToken();
+    if (!token || lovePending) return;
+    const next = !loved;
+    setLoved(next);
+    setLovePending(true);
+    try {
+      await restaurantApi.setFavorite(token, restaurantId, next);
+    } catch {
+      setLoved(!next);
+    } finally {
+      setLovePending(false);
+    }
+  };
 
   return (
     <div
@@ -69,7 +115,8 @@ export const FeedActionRail = ({
         }
         label="Sauver"
         active={saved}
-        onClick={() => setSaved((v) => !v)}
+        disabled={savePending}
+        onClick={toggleSave}
       />
       <Action
         icon={<ShareIcon className="size-5" />}
@@ -86,7 +133,8 @@ export const FeedActionRail = ({
         }
         label="Enregistrer"
         activeTint={loved}
-        onClick={() => setLoved((v) => !v)}
+        disabled={lovePending}
+        onClick={toggleLove}
       />
     </div>
   );
