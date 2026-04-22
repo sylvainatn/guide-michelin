@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { FeedRestaurantDTO } from "../../lib/restaurants/client";
 import { MuteToggle } from "../atoms/MuteToggle";
+import { Tour3DButton } from "../atoms/Tour3DButton";
 import { Video } from "../atoms/Video";
 import { VideoProgress } from "../atoms/VideoProgress";
 
@@ -49,20 +51,26 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
 
       <div
-        className="absolute right-4 top-4 z-10"
+        className="absolute right-4 top-4 z-10 flex flex-col items-end gap-3"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <MuteToggle muted={muted} onToggle={toggleMute} />
+        <Link href={`/restaurants/${item.id}`} className="pointer-events-auto">
+          <Tour3DButton className="bg-white/90 text-tertiary backdrop-blur" />
+        </Link>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 z-10">
-        <div className="space-y-1.5 px-5 pb-4 pt-6 text-white">
+        <Link
+          href={`/restaurants/${item.id}`}
+          className="block space-y-1.5 px-5 pb-4 pt-6 text-white"
+        >
           <h2 className="text-h4 drop-shadow-md">{item.name}</h2>
           <p className="line-clamp-3 text-sm opacity-90 drop-shadow-md">
             {item.description}
           </p>
           <p className="text-h2 opacity-80 drop-shadow-md">{item.address}</p>
-        </div>
+        </Link>
         <VideoProgress videoRef={videoRef} />
         <div style={{ height: "env(safe-area-inset-bottom)" }} />
       </div>

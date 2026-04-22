@@ -12,6 +12,10 @@ export const createRestaurantSchema = z.object({
     .max(2000)
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
+  chefName: z.string().trim().min(1).max(200).optional(),
+  stars: z.number().int().min(0).max(3).optional(),
+  priceRange: z.enum(["EUR", "EUREUR", "EUREUREUR", "EUREUREUREUR"]).optional(),
+  style: z.array(z.string().trim().min(1).max(50)).max(10).optional(),
 });
 
 export type CreateRestaurantInput = z.infer<typeof createRestaurantSchema>;

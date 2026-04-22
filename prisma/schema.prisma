@@ -51,6 +51,17 @@ model Restaurant {
   description String
   address     String
   videoUrl    String?
+
+  // --- Fiche Michelin ---
+  chefName    String?
+  stars       Int?      // 0..3 (null = non attribuee / Bib / Recommande)
+  priceRange  String?   // "EUR" | "EUREUR" | "EUREUREUR" | "EUREUREUREUR"
+  style       String[]  @default([]) // ex: ["Gastronomie", "Vignes"]
+
+  // --- Visite 3D ---
+  tourStops   Json?     // cf. lib/restaurants/tour-stops.ts
+  photos360   String[]  @default([]) // URLs optionnelles pour textures murs
+
   owner       User      @relation(fields: [ownerId], references: [id])
   ownerId     String
   articles    Article[]
