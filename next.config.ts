@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   // Utile quand on ouvre l'app depuis un autre device sur le LAN.
   allowedDevOrigins: ["10.213.137.89", "localhost", "127.0.0.1"],
 
+  // Next buffère le body des rewrites (proxy) pour permettre plusieurs lectures.
+  // Default 10MB → les uploads vidéo (limite multer 100MB) sont tronqués.
+  experimental: {
+    proxyClientMaxBodySize: "100mb",
+  },
+
   // Proxy local: évite les soucis de CORS et rend l'app accessible via l'IP LAN
   // même si l'API tourne sur la machine en :4000.
   async rewrites() {
