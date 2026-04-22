@@ -84,7 +84,7 @@ export const FeedActionRail = ({
             <HeartIcon className="size-5" />
           )
         }
-        label="En favori"
+        label="Enregistrer"
         activeTint={loved}
         onClick={() => setLoved((v) => !v)}
       />

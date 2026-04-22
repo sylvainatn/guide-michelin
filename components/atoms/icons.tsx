@@ -163,6 +163,21 @@ export const SparklesIcon = (props: IconProps) => (
   </svg>
 );
 
+export const RosetteIcon = (props: IconProps) => {
+  const petals = Array.from({ length: 6 }).map((_, i) => {
+    const angle = (i * 60 * Math.PI) / 180;
+    const cx = 12 + Math.cos(angle) * 4.6;
+    const cy = 12 + Math.sin(angle) * 4.6;
+    return <circle key={i} cx={cx} cy={cy} r="4" fill="currentColor" />;
+  });
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      {petals}
+      <circle cx="12" cy="12" r="4" fill="currentColor" />
+    </svg>
+  );
+};
+
 export const LeafIcon = (props: IconProps) => (
   <svg {...base} {...props}>
     <path d="M20 4s-8 0-12 4-4 12-4 12 8 0 12-4 4-12 4-12Z" />
