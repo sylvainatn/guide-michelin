@@ -1,7 +1,10 @@
+import type { TourConfig } from "./tour-stops";
 import { ApiError, request } from "../auth/client";
 
 const rawBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 const API_BASE = rawBase ?? "/api";
+
+export type PriceRange = "EUR" | "EUREUR" | "EUREUREUR" | "EUREUREUREUR";
 
 export type RestaurantDTO = {
   id: string;
@@ -9,9 +12,30 @@ export type RestaurantDTO = {
   description: string;
   address: string;
   videoUrl: string | null;
+  chefName: string | null;
+  stars: number | null;
+  priceRange: PriceRange | null;
+  style: string[];
+  tourStops: TourConfig | null;
+  photos360: string[];
   ownerId: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type RestaurantDetailDTO = {
+  id: string;
+  name: string;
+  description: string;
+  address: string;
+  videoUrl: string | null;
+  chefName: string | null;
+  stars: number | null;
+  priceRange: PriceRange | null;
+  style: string[];
+  tourStops: TourConfig | null;
+  photos360: string[];
+  createdAt: string;
 };
 
 export type CreateRestaurantInput = {
@@ -19,6 +43,10 @@ export type CreateRestaurantInput = {
   description: string;
   address: string;
   videoUrl?: string;
+  chefName?: string;
+  stars?: number;
+  priceRange?: PriceRange;
+  style?: string[];
 };
 
 export type FeedRestaurantDTO = {
@@ -46,6 +74,12 @@ export const restaurantApi = {
 
   feed: (accessToken: string) =>
     request<{ restaurants: FeedRestaurantDTO[] }>("/restaurants/feed", {
+      method: "GET",
+      accessToken,
+    }),
+
+  getById: (accessToken: string, id: string) =>
+    request<{ restaurant: RestaurantDetailDTO }>(`/restaurants/${id}`, {
       method: "GET",
       accessToken,
     }),

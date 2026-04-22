@@ -9,6 +9,9 @@ export const restaurantRouter = Router();
 // Public to any authenticated user (USER + ADMIN) — feed des vidéos.
 restaurantRouter.get("/feed", requireAuth, restaurantController.listFeed);
 
+// Fiche restaurant (accessible a tout utilisateur authentifie).
+restaurantRouter.get("/:id", requireAuth, restaurantController.getById);
+
 // Admin-only : gestion des établissements.
 restaurantRouter.post("/", requireAuth, requireAdmin, restaurantController.create);
 restaurantRouter.get("/", requireAuth, requireAdmin, restaurantController.listMine);

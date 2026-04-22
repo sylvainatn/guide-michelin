@@ -29,6 +29,10 @@ export default function AddRestaurantPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
+  const [chefName, setChefName] = useState("");
+  const [stars, setStars] = useState<"0" | "1" | "2" | "3">("0");
+  const [priceRange, setPriceRange] = useState<"EUR" | "EUREUR" | "EUREUREUR" | "EUREUREUREUR">("EUREUR");
+  const [style, setStyle] = useState("");
   const [videoSource, setVideoSource] = useState<VideoSource>("none");
   const [videoUrl, setVideoUrl] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -63,11 +67,20 @@ export default function AddRestaurantPage() {
         finalVideoUrl = url;
       }
 
+      const parsedStars = Number.parseInt(stars, 10);
+      const trimmedStyle = style
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
       await restaurantApi.create(token, {
         name,
         description,
         address,
         videoUrl: finalVideoUrl,
+        chefName: chefName.trim() || undefined,
+        stars: parsedStars > 0 ? parsedStars : undefined,
+        priceRange,
+        style: trimmedStyle.length > 0 ? trimmedStyle : undefined,
       });
       router.push("/dashboard");
     } catch (err) {
@@ -128,6 +141,57 @@ export default function AddRestaurantPage() {
           required
           maxLength={500}
         />
+
+        <fieldset className="space-y-3 rounded-md border border-neutral-200 p-4">
+          <legend className="px-1 text-h2 text-neutral-700">
+            Fiche Michelin (optionnel)
+          </legend>
+
+          <FormField
+            label="Nom du chef"
+            value={chefName}
+            onChange={setChefName}
+            maxLength={200}
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-1.5">
+              <Label>Etoiles</Label>
+              <select
+                value={stars}
+                onChange={(e) => setStars(e.target.value as typeof stars)}
+                className="block w-full rounded-md border border-neutral-200 px-3 py-2 text-sm"
+              >
+                <option value="0">Aucune</option>
+                <option value="1">1 etoile</option>
+                <option value="2">2 etoiles</option>
+                <option value="3">3 etoiles</option>
+              </select>
+            </label>
+
+            <label className="space-y-1.5">
+              <Label>Gamme de prix</Label>
+              <select
+                value={priceRange}
+                onChange={(e) => setPriceRange(e.target.value as typeof priceRange)}
+                className="block w-full rounded-md border border-neutral-200 px-3 py-2 text-sm"
+              >
+                <option value="EUR">&euro;</option>
+                <option value="EUREUR">&euro;&euro;</option>
+                <option value="EUREUREUR">&euro;&euro;&euro;</option>
+                <option value="EUREUREUREUR">&euro;&euro;&euro;&euro;</option>
+              </select>
+            </label>
+          </div>
+
+          <FormField
+            label="Style (separes par des virgules)"
+            value={style}
+            onChange={setStyle}
+            placeholder="Gastronomie, Vignes"
+            maxLength={500}
+          />
+        </fieldset>
 
         <fieldset className="space-y-3 rounded-md border border-neutral-200 p-4">
           <legend className="px-1 text-h2 text-neutral-700">
