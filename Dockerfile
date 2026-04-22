@@ -21,8 +21,11 @@ RUN npx prisma generate && npm run build
 # ---------- prod-deps (runtime only) ----------
 FROM base AS prod-deps
 COPY package.json package-lock.json ./
+# --ignore-scripts : évite le postinstall de `prisma` qui cherche `schema.prisma`
+# absent de ce stage. Le client Prisma est généré dans le stage `builder` et
+# copié via `app/generated/prisma/` dans le runner.
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --omit=dev --no-audit --no-fund \
+    npm ci --omit=dev --ignore-scripts --no-audit --no-fund \
     && npm cache clean --force
 
 # ---------- runner ----------
