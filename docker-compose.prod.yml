@@ -2,7 +2,7 @@ services:
   app:
     # En prod l'image vient de GHCR (poussée par GitHub Actions).
     # Override possible via APP_IMAGE dans .env.production pour un build local.
-    image: ${APP_IMAGE:-ghcr.io/CHANGE_ME/guide-michelin:latest}
+    image: ${APP_IMAGE}
     restart: always
     depends_on:
       - postgres
