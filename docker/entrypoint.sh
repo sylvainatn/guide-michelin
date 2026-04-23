@@ -17,8 +17,16 @@ fi
 # pour ne pas crash le container.
 if [ -f /app/mydb.sql ]; then
   echo "[entrypoint] Applying mydb.sql..."
-  grep -v '^\\connect' /app/mydb.sql | psql "$DATABASE_URL" || \
-    echo "[entrypoint] mydb.sql returned non-zero (duplicates?) — continuing."
+  # `\connect` stripé : DATABASE_URL pointe déjà sur la bonne DB.
+  # `set +e` localement pour que set -e global n'interrompe pas le boot si
+  # psql rapporte une erreur non-fatale (FK, duplicate sans ON CONFLICT...).
+  set +e
+  grep -v '^\\connect' /app/mydb.sql | psql "$DATABASE_URL"
+  PSQL_EXIT=$?
+  set -e
+  if [ "$PSQL_EXIT" != "0" ]; then
+    echo "[entrypoint] mydb.sql exited $PSQL_EXIT — continuing boot."
+  fi
 fi
 
 mkdir -p /app/public/uploads/videos /app/public/uploads/images
