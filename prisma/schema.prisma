@@ -83,6 +83,12 @@ enum AccommodationCategory {
   RESORT
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -309,4 +315,20 @@ model Article {
   authorId     String
 
   @@map("articles")
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendshipsSent", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendshipsReceived", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId])
+  @@index([requesterId])
+  @@map("friendships")
 }

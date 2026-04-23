@@ -28,9 +28,15 @@ export const SignInForm = () => {
   const onSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+
+    if (!isValidEmail(email)) {
+      setError("Merci de saisir une adresse e-mail valide.");
+      return;
+    }
+
     setPending(true);
     try {
-      const user = await login({ identifier: email, password });
+      const user = await login({ email: email.trim().toLowerCase(), password });
       router.push(user.role === "ADMIN" ? "/dashboard" : "/account");
     } catch (err) {
       setError(

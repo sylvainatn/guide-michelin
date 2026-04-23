@@ -156,7 +156,7 @@ export const authApi = {
       body: JSON.stringify(input),
     }),
 
-  login: (input: { identifier: string; password: string }) =>
+  login: (input: { email: string; password: string }) =>
     request<AuthResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(input),

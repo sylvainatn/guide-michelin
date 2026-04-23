@@ -54,12 +54,11 @@ export const signup = async (
 };
 
 export const login = async (
-  input: { identifier: string; password: string },
+  input: { email: string; password: string },
   ctx: Ctx,
 ) => {
-  const isEmail = input.identifier.includes("@");
   const user = await prisma.user.findUnique({
-    where: isEmail ? { email: input.identifier } : { pseudo: input.identifier },
+    where: { email: input.email.toLowerCase() },
   });
   if (!user) throw Unauthorized("invalid_credentials", "Invalid credentials");
 
