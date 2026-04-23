@@ -20,6 +20,7 @@ import {
 } from "../../../../lib/restaurants/client";
 
 type VideoSource = "none" | "url" | "upload";
+type ImageSource = "none" | "url" | "upload";
 type StarValue = "0" | "1" | "2" | "3";
 
 const VIDEO_SOURCE_OPTIONS = [
@@ -27,6 +28,12 @@ const VIDEO_SOURCE_OPTIONS = [
   { value: "url", label: "Lien externe" },
   { value: "upload", label: "Uploader un fichier" },
 ] as const satisfies ReadonlyArray<{ value: VideoSource; label: string }>;
+
+const IMAGE_SOURCE_OPTIONS = [
+  { value: "none", label: "Aucune" },
+  { value: "url", label: "Lien externe" },
+  { value: "upload", label: "Uploader un fichier" },
+] as const satisfies ReadonlyArray<{ value: ImageSource; label: string }>;
 
 const DEFAULT_PRICE_RANGE: PriceRange = "EUREUR";
 
@@ -51,6 +58,11 @@ export default function EditRestaurantPage() {
   const [videoUrl, setVideoUrl] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+
+  const [imageSource, setImageSource] = useState<ImageSource>("none");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -92,6 +104,13 @@ export default function EditRestaurantPage() {
           setVideoUrl(restaurant.videoUrl);
         } else {
           setVideoSource("none");
+        }
+        setCurrentImageUrl(restaurant.mainImageUrl);
+        if (restaurant.mainImageUrl) {
+          setImageSource("url");
+          setImageUrl(restaurant.mainImageUrl);
+        } else {
+          setImageSource("none");
         }
         setLoadError(null);
       } catch (err) {
@@ -139,6 +158,23 @@ export default function EditRestaurantPage() {
         nextVideoUrl = url;
       }
 
+      let nextImageUrl: string | null | undefined;
+
+      if (imageSource === "none") {
+        nextImageUrl = currentImageUrl ? null : undefined;
+      } else if (imageSource === "url") {
+        const trimmed = imageUrl.trim();
+        nextImageUrl = trimmed.length > 0 ? trimmed : null;
+      } else {
+        if (!imageFile) {
+          setError("Selectionne un fichier image.");
+          setPending(false);
+          return;
+        }
+        const { url } = await restaurantApi.uploadImage(token, imageFile);
+        nextImageUrl = url;
+      }
+
       const parsedStars = Number.parseInt(stars, 10);
       const trimmedStyle = style
         .split(",")
@@ -155,9 +191,11 @@ export default function EditRestaurantPage() {
         style: trimmedStyle,
       };
       if (nextVideoUrl !== undefined) input.videoUrl = nextVideoUrl;
+      if (nextImageUrl !== undefined) input.mainImageUrl = nextImageUrl;
 
       const { restaurant } = await restaurantApi.update(token, id, input);
       setCurrentVideoUrl(restaurant.videoUrl);
+      setCurrentImageUrl(restaurant.mainImageUrl);
       router.push("/dashboard");
     } catch (err) {
       if (err instanceof ApiError && err.code === "file_too_large") {
@@ -374,6 +412,55 @@ export default function EditRestaurantPage() {
               {videoFile && (
                 <MutedText>
                   {videoFile.name} — {(videoFile.size / (1024 * 1024)).toFixed(1)} Mo
+                </MutedText>
+              )}
+            </label>
+          )}
+        </fieldset>
+
+        <fieldset className="space-y-3 rounded-md border border-neutral-200 p-4">
+          <legend className="px-1 text-h2 text-neutral-700">
+            Image principale (optionnel)
+          </legend>
+
+          {currentImageUrl && imageSource !== "upload" && (
+            <MutedText>Image actuelle : {currentImageUrl}</MutedText>
+          )}
+
+          <RadioGroup
+            name="imageSource"
+            value={imageSource}
+            options={IMAGE_SOURCE_OPTIONS}
+            onChange={(next) => {
+              setImageSource(next);
+              if (next !== "url") setImageUrl("");
+              if (next !== "upload") setImageFile(null);
+            }}
+          />
+
+          {imageSource === "url" && (
+            <FormField
+              label="URL de l'image"
+              type="url"
+              value={imageUrl}
+              onChange={setImageUrl}
+              placeholder="https://images.example.com/photo.jpg"
+              maxLength={2000}
+            />
+          )}
+
+          {imageSource === "upload" && (
+            <label className="block space-y-1.5">
+              <Label>Fichier image (jpg, png, webp, avif — max 10 Mo)</Label>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-neutral-200"
+              />
+              {imageFile && (
+                <MutedText>
+                  {imageFile.name} — {(imageFile.size / (1024 * 1024)).toFixed(1)} Mo
                 </MutedText>
               )}
             </label>
