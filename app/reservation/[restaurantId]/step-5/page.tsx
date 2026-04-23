@@ -85,7 +85,7 @@ export default function ReservationStep5Page() {
 
   const handleHome = () => {
     reservationStorage.clear(restaurantId);
-    router.push("/feed");
+    router.push("/");
   };
 
   return (

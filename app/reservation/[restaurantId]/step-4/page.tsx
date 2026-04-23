@@ -97,7 +97,7 @@ export default function ReservationStep4Page() {
     <ReservationShell
       current={4}
       onBack={() => router.back()}
-      onClose={() => router.push("/feed")}
+      onClose={() => router.push("/")}
       header={
         <div className="flex flex-col gap-1.5">
           <StepBadge

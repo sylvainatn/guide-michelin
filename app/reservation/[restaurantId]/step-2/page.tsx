@@ -58,7 +58,7 @@ export default function ReservationStep2Page() {
   };
 
   const handleBack = () => router.back();
-  const handleClose = () => router.push("/feed");
+  const handleClose = () => router.push("/");
 
   return (
     <ReservationShell
