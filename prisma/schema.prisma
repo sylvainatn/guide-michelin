@@ -97,6 +97,7 @@ model User {
   lastName      String
   firstName     String
   emailVerified DateTime?
+  lastSeenAt    DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
@@ -109,6 +110,8 @@ model User {
   paymentCards  PaymentCard[]
   reservations  Reservation[]
   accommodations Accommodation[]
+  friendshipsSent     Friendship[] @relation("FriendshipsSent")
+  friendshipsReceived Friendship[] @relation("FriendshipsReceived")
 
   @@map("users")
 }
