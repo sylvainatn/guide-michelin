@@ -1,31 +1,84 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "../components/atoms/Button";
-import { PlainLink } from "../components/atoms/PlainLink";
-import { BrandHero } from "../components/molecules/BrandHero";
+import { useEffect, useState } from "react";
+import { ErrorText } from "../components/atoms/ErrorText";
+import { MutedText } from "../components/atoms/MutedText";
+import { VideoFeed } from "../components/organisms/VideoFeed";
+import { ApiError } from "../lib/auth/client";
+import { useAuth } from "../lib/auth/context";
+import {
+  type FeedRestaurantDTO,
+  restaurantApi,
+} from "../lib/restaurants/client";
 
-export default function HomePage() {
+export default function FeedPage() {
   const router = useRouter();
+  const { status, getAccessToken } = useAuth();
+  const [items, setItems] = useState<FeedRestaurantDTO[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status === "unauthenticated") router.replace("/signin");
+  }, [status, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    const token = getAccessToken();
+    if (!token) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { restaurants } = await restaurantApi.feed(token);
+        if (!cancelled) {
+          setError(null);
+          setItems(restaurants);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        setError(
+          err instanceof ApiError
+            ? "Impossible de charger le feed."
+            : "Erreur réseau. Réessaie.",
+        );
+        setItems([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [status, getAccessToken]);
+
+  if (status !== "authenticated") {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-black text-white">
+        <MutedText>Chargement…</MutedText>
+      </div>
+    );
+  }
+
   return (
-    <main className="flex flex-1 items-stretch justify-center bg-neutral-50 md:items-center md:px-4 md:py-6">
-      <div className="flex w-full flex-col overflow-hidden bg-neutral-50 md:h-[calc(100dvh-3rem)] md:max-h-225 md:w-[min(420px,100%)] md:rounded-3xl md:shadow-2xl md:ring-1 md:ring-black/10">
-        <BrandHero />
-        <div className="flex flex-1 flex-col items-center justify-end gap-4 px-6 pt-10 pb-10">
-          <Button fullWidth onClick={() => router.push("/signup")}>
-            Créer mon compte
-          </Button>
-          <Button
-            variant="secondary"
-            fullWidth
-            onClick={() => router.push("/signin")}
-          >
-            Se connecter
-          </Button>
-          <PlainLink href="/feed" className="mt-2">
-            Continuer sans me connecter
-          </PlainLink>
-        </div>
+    <main
+      className="relative flex flex-1 items-center justify-center bg-black"
+      style={{ height: "100dvh" }}
+    >
+      {/* Mobile: full-bleed. Desktop: phone-shaped frame centré. */}
+      <div
+        className="relative h-full w-full overflow-hidden bg-black md:my-6 md:h-[calc(100dvh-3rem)] md:max-h-225 md:w-[min(420px,100%)] md:rounded-3xl md:shadow-2xl md:ring-1 md:ring-white/10"
+      >
+        {error && (
+          <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2 rounded-md bg-white/95 px-4 py-2 shadow">
+            <ErrorText>{error}</ErrorText>
+          </div>
+        )}
+        {items === null ? (
+          <div className="flex h-full items-center justify-center text-white">
+            <MutedText>Chargement…</MutedText>
+          </div>
+        ) : (
+          <VideoFeed items={items} />
+        )}
       </div>
     </main>
   );

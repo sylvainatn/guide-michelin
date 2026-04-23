@@ -30,13 +30,20 @@ export const RoomSelector = ({ rooms, onRoomSelect }: RoomSelectorProps) => {
           >
             {/* Room Icon */}
             <div className={`
-              rounded-lg w-9 h-9 flex items-center justify-center
+              rounded-lg w-9 h-9 flex items-center justify-center shrink-0
               ${room.selected 
-                ? "bg-white bg-opacity-20" 
+                ? "bg-white" 
                 : "bg-neutral-200"
               }
             `}>
-              <BedIcon className={`size-4 ${room.selected ? "text-white" : "text-neutral-600"}`} />
+              {/* Note: Dans la maquette, l'icône disparaît complètement quand c'est sélectionné au profit d'un simple carré blanc.
+                  Si on veut garder l'icône, on peut la mettre ici avec une couleur différente.
+                  Mais pour matcher la capture 2 fournie ("lorsque je selection mon element je vois plus mon icone"),
+                  le design montre juste un carré blanc. 
+              */}
+              {!room.selected && (
+                <BedIcon className="size-4 text-neutral-600" />
+              )}
             </div>
 
             {/* Room Info */}
