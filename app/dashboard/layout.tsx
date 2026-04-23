@@ -1,13 +1,20 @@
+import { DashboardSidebar } from "../../components/organisms/DashboardSidebar";
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex flex-1 items-stretch justify-center bg-neutral-50 md:items-center md:px-4 md:py-6">
-      <div className="w-full px-4 py-8 md:h-[calc(100dvh-3rem)] md:max-h-225 md:w-[min(420px,100%)] md:overflow-y-auto md:rounded-3xl md:bg-white md:p-6 md:shadow-2xl md:ring-1 md:ring-black/10">
-        {children}
+    <main className="flex min-h-dvh flex-1 bg-neutral-100">
+      <div className="hidden md:block">
+        <DashboardSidebar />
       </div>
+      <section className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        <div className="mx-auto w-full max-w-6xl px-6 py-8 md:px-10 md:py-10">
+          {children}
+        </div>
+      </section>
     </main>
   );
 }

@@ -74,6 +74,14 @@ enum ReservationEventType {
   ANNIVERSAIRE
   SAINT_VALENTIN
 }
+enum AccommodationCategory {
+  HOTEL
+  BED_AND_BREAKFAST
+  CHALET
+  VILLA
+  APARTMENT
+  RESORT
+}
 
 model User {
   id            String    @id @default(uuid())
@@ -94,6 +102,7 @@ model User {
   favorites     Favorite[]
   paymentCards  PaymentCard[]
   reservations  Reservation[]
+  accommodations Accommodation[]
 
   @@map("users")
 }
@@ -264,6 +273,29 @@ model Reservation {
   @@index([userId])
   @@index([restaurantId])
   @@map("reservations")
+
+}
+model Accommodation {
+  id            String                @id @default(cuid())
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  name          String
+  description   String
+  address       String
+  category      AccommodationCategory
+  stars         Int?
+  priceFromEur  Int?
+  mainImageUrl  String?
+  videoUrl      String?
+  video360      Boolean               @default(false)
+  amenities     String[]              @default([])
+  photos        String[]              @default([])
+
+  owner         User                  @relation(fields: [ownerId], references: [id])
+  ownerId       String
+
+  @@index([ownerId])
+  @@map("accommodations")
 }
 
 model Article {

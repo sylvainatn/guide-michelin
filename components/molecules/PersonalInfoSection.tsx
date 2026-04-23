@@ -7,8 +7,8 @@ const AGE_RANGES = [
   { label: "18–24 ans", min: 18, max: 24 },
   { label: "25–30 ans", min: 25, max: 30 },
   { label: "31–40 ans", min: 31, max: 40 },
-  { label: "41–55 ans", min: 41, max: 55 },
-  { label: "55+ ans", min: 56, max: 120 },
+  { label: "41–54 ans", min: 41, max: 54 },
+  { label: "55+ ans", min: 55, max: 120 },
 ] as const;
 
 const midOf = (r: (typeof AGE_RANGES)[number]) =>

@@ -1,18 +1,13 @@
 import { Router } from "express";
+import { createImageUpload, createVideoUpload } from "../../lib/upload";
 import { requireAdmin } from "../../middleware/require-admin";
 import { requireAuth } from "../../middleware/require-auth";
 import * as restaurantController from "./restaurant.controller";
-import {
-  imageUploadMiddleware,
-  uploadImage,
-  uploadVideo,
-  videoUploadMiddleware,
-} from "./restaurant.upload";
 
 export const restaurantRouter = Router();
 
-// Public to any authenticated user (USER + ADMIN) — feed des vidéos.
-restaurantRouter.get("/feed", requireAuth, restaurantController.listFeed);
+const videoUpload = createVideoUpload("restaurant");
+const imageUpload = createImageUpload("restaurant");
 
 // Fiche restaurant (accessible a tout utilisateur authentifie).
 restaurantRouter.get("/:id", requireAuth, restaurantController.getById);
@@ -36,13 +31,13 @@ restaurantRouter.post(
   "/video",
   requireAuth,
   requireAdmin,
-  videoUploadMiddleware,
-  uploadVideo,
+  videoUpload.middleware,
+  videoUpload.handler,
 );
 restaurantRouter.post(
   "/image",
   requireAuth,
   requireAdmin,
-  imageUploadMiddleware,
-  uploadImage,
+  imageUpload.middleware,
+  imageUpload.handler,
 );

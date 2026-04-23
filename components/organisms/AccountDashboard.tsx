@@ -2,6 +2,7 @@ import type { PublicUser } from "../../lib/auth/client";
 import { computeTierProgress } from "../../lib/loyalty/tiers";
 import {
   CalendarIcon,
+  CompassIcon,
   CreditCardIcon,
   ImageIcon,
   SlidersIcon,
@@ -59,6 +60,11 @@ export const AccountDashboard = ({
       <RewardsCard progress={progress} />
 
       <AccountMenuList>
+        <AccountMenuItem
+          href="/feed"
+          icon={<CompassIcon className="h-5 w-5" />}
+          label="Voir le feed"
+        />
         <AccountMenuItem
           href="/account/personal"
           icon={<UserIcon className="h-5 w-5" />}

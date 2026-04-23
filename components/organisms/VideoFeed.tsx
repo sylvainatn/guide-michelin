@@ -1,8 +1,8 @@
-import type { FeedRestaurantDTO } from "../../lib/restaurants/client";
+import type { FeedItem } from "../../lib/feed/client";
 import { MutedText } from "../atoms/MutedText";
 import { VideoCard } from "../molecules/VideoCard";
 
-export const VideoFeed = ({ items }: { items: FeedRestaurantDTO[] }) => {
+export const VideoFeed = ({ items }: { items: FeedItem[] }) => {
   if (items.length === 0) {
     return (
       <div className="flex h-full items-center justify-center text-white">
@@ -18,7 +18,7 @@ export const VideoFeed = ({ items }: { items: FeedRestaurantDTO[] }) => {
     >
       {items.map((item) => (
         <section
-          key={item.id}
+          key={`${item.kind}-${item.id}`}
           className="relative h-full w-full snap-start snap-always"
         >
           <VideoCard item={item} />

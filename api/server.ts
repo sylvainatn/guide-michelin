@@ -7,6 +7,8 @@ import { env } from "./config/env";
 import { errorHandler } from "./middleware/error-handler";
 import { authRouter } from "./modules/auth/auth.routes";
 import { interactionRouter } from "./modules/interactions/interaction.routes";
+import { accommodationRouter } from "./modules/accommodations/accommodation.routes";
+import { feedRouter } from "./modules/feed/feed.routes";
 import { paymentCardRouter } from "./modules/paymentCards/paymentCard.routes";
 import { profileRouter } from "./modules/profile/profile.routes";
 import { reservationRouter } from "./modules/reservations/reservation.routes";
@@ -43,6 +45,8 @@ app.use("/me/reservations", reservationRouter);
 app.use("/me", userRouter);
 app.use("/me", interactionRouter);
 app.use("/restaurants", restaurantRouter);
+app.use("/accommodations", accommodationRouter);
+app.use("/feed", feedRouter);
 
 app.use(errorHandler);
 

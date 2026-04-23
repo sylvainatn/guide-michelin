@@ -9,24 +9,26 @@ import { RangeSlider } from "../../molecules/RangeSlider";
 import { StepShell } from "../../molecules/StepShell";
 import type { StepProps } from "./types";
 
+const SLIDER_MAX = 60;
+
 const TICKS = [
   { value: 18, label: "18" },
   { value: 25, label: "25" },
-  { value: 30, label: "30" },
-  { value: 40, label: "40" },
+  { value: 35, label: "35" },
+  { value: 45, label: "45" },
   { value: 60, label: "60+" },
 ];
 
 const RANGES = [
-  { label: "18–24 ans", min: 18, max: 24 },
-  { label: "25–30 ans", min: 25, max: 30 },
-  { label: "31–40 ans", min: 31, max: 40 },
-  { label: "41–55 ans", min: 41, max: 55 },
-  { label: "55+ ans", min: 56, max: 120 },
+  { label: "18–24", min: 18, max: 24 },
+  { label: "25–30", min: 25, max: 30 },
+  { label: "31–40", min: 31, max: 40 },
+  { label: "41–54", min: 41, max: 54 },
+  { label: "55+", min: 55, max: 120 },
 ];
 
 const midOf = (r: (typeof RANGES)[number]) =>
-  Math.min(60, Math.round((r.min + Math.min(r.max, 60)) / 2));
+  Math.min(SLIDER_MAX, Math.round((r.min + Math.min(r.max, SLIDER_MAX)) / 2));
 
 export const StepAge = ({ state, setState, onNext }: StepProps) => (
   <StepShell
@@ -60,12 +62,12 @@ export const StepAge = ({ state, setState, onNext }: StepProps) => (
     </div>
     <RangeSlider
       min={18}
-      max={60}
-      value={Math.min(state.age, 60)}
+      max={SLIDER_MAX}
+      value={Math.min(state.age, SLIDER_MAX)}
       onChange={(age) => setState({ age })}
       ticks={TICKS}
     />
-    <div className="flex flex-wrap justify-center gap-2">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
       {RANGES.map((r) => {
         const selected = state.age >= r.min && state.age <= r.max;
         return (
@@ -73,8 +75,9 @@ export const StepAge = ({ state, setState, onNext }: StepProps) => (
             key={r.label}
             selected={selected}
             onClick={() => setState({ age: midOf(r) })}
+            className="w-full justify-center whitespace-nowrap"
           >
-            {r.label}
+            {r.label} ans
           </Chip>
         );
       })}

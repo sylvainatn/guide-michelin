@@ -51,33 +51,32 @@ const Action = ({
   );
 };
 
-type Props = {
+type BookmarkState = {
   restaurantId: string;
   initialSaved: boolean;
   initialFavorited: boolean;
+};
+
+type Props = {
+  bookmark?: BookmarkState;
   onShare?: () => void;
 };
 
-export const FeedActionRail = ({
-  restaurantId,
-  initialSaved,
-  initialFavorited,
-  onShare,
-}: Props) => {
+export const FeedActionRail = ({ bookmark, onShare }: Props) => {
   const { getAccessToken } = useAuth();
-  const [saved, setSaved] = useState(initialSaved);
-  const [loved, setLoved] = useState(initialFavorited);
+  const [saved, setSaved] = useState(bookmark?.initialSaved ?? false);
+  const [loved, setLoved] = useState(bookmark?.initialFavorited ?? false);
   const [savePending, setSavePending] = useState(false);
   const [lovePending, setLovePending] = useState(false);
 
   const toggleSave = async () => {
     const token = getAccessToken();
-    if (!token || savePending) return;
+    if (!token || savePending || !bookmark) return;
     const next = !saved;
     setSaved(next);
     setSavePending(true);
     try {
-      await restaurantApi.setBookmark(token, restaurantId, next);
+      await restaurantApi.setBookmark(token, bookmark.restaurantId, next);
     } catch {
       setSaved(!next);
     } finally {
@@ -87,12 +86,12 @@ export const FeedActionRail = ({
 
   const toggleLove = async () => {
     const token = getAccessToken();
-    if (!token || lovePending) return;
+    if (!token || lovePending || !bookmark) return;
     const next = !loved;
     setLoved(next);
     setLovePending(true);
     try {
-      await restaurantApi.setFavorite(token, restaurantId, next);
+      await restaurantApi.setFavorite(token, bookmark.restaurantId, next);
     } catch {
       setLoved(!next);
     } finally {
@@ -105,37 +104,41 @@ export const FeedActionRail = ({
       className="pointer-events-none absolute right-3 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-4"
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <Action
-        icon={
-          saved ? (
-            <BookmarkFilledIcon className="size-5" />
-          ) : (
-            <BookmarkIcon className="size-5" />
-          )
-        }
-        label="Sauver"
-        active={saved}
-        disabled={savePending}
-        onClick={toggleSave}
-      />
+      {bookmark && (
+        <Action
+          icon={
+            saved ? (
+              <BookmarkFilledIcon className="size-5" />
+            ) : (
+              <BookmarkIcon className="size-5" />
+            )
+          }
+          label="Sauver"
+          active={saved}
+          disabled={savePending}
+          onClick={toggleSave}
+        />
+      )}
       <Action
         icon={<ShareIcon className="size-5" />}
         label="Partager"
         onClick={onShare}
       />
-      <Action
-        icon={
-          loved ? (
-            <HeartFilledIcon className="size-5" />
-          ) : (
-            <HeartIcon className="size-5" />
-          )
-        }
-        label="Enregistrer"
-        activeTint={loved}
-        disabled={lovePending}
-        onClick={toggleLove}
-      />
+      {bookmark && (
+        <Action
+          icon={
+            loved ? (
+              <HeartFilledIcon className="size-5" />
+            ) : (
+              <HeartIcon className="size-5" />
+            )
+          }
+          label="Enregistrer"
+          activeTint={loved}
+          disabled={lovePending}
+          onClick={toggleLove}
+        />
+      )}
     </div>
   );
 };
