@@ -73,6 +73,7 @@ export interface ReservationStep1 {
 
 export interface ReservationState {
   restaurantId: string;
+  reservationId?: string;
   restaurantName?: string;
   chefName?: string;
   stars?: number | null;

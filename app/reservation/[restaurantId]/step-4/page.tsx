@@ -15,15 +15,24 @@ import {
   buildDefaultReservation,
   reservationStorage,
 } from "@/lib/reservation/storage";
+import {
+  reservationApi,
+  toCreateReservationInput,
+} from "@/lib/reservation/client";
+import { ApiError } from "@/lib/auth/client";
+import { useAuth } from "@/lib/auth/context";
 import type { PaymentMethod, ReservationState } from "@/types/reservation";
 
 export default function ReservationStep4Page() {
   const router = useRouter();
   const params = useParams<{ restaurantId: string }>();
   const restaurantId = params?.restaurantId;
+  const { getAccessToken } = useAuth();
 
   const [reservation, setReservation] = useState<ReservationState | null>(null);
   const [method, setMethod] = useState<PaymentMethod>("apple-pay");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!restaurantId) return;
@@ -38,16 +47,47 @@ export default function ReservationStep4Page() {
 
   if (!restaurantId || !reservation) return null;
 
-  const handlePay = () => {
-    reservationStorage.write(restaurantId, {
+  const handlePay = async () => {
+    if (submitting) return;
+    const nextState: ReservationState = {
       ...reservation,
       payment: { ...reservation.payment, method },
-    });
-    router.push(`/reservation/${restaurantId}/step-5`);
+    };
+    reservationStorage.write(restaurantId, nextState);
+
+    const token = getAccessToken();
+    if (!token) {
+      router.replace("/signin");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      const { reservation: saved } = await reservationApi.create(
+        token,
+        toCreateReservationInput(nextState),
+      );
+      reservationStorage.write(restaurantId, {
+        ...nextState,
+        reservationId: saved.id,
+      });
+      router.push(`/reservation/${restaurantId}/step-5`);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Une erreur est survenue pendant la réservation.";
+      setError(message);
+      setSubmitting(false);
+    }
   };
 
-  const ctaLabel =
-    method === "apple-pay"
+  const ctaLabel = submitting
+    ? "Réservation en cours…"
+    : method === "apple-pay"
       ? `Payer ${reservation.payment.totalAmount.toLocaleString("fr-FR")} € avec Apple Pay`
       : method === "google-pay"
         ? `Payer ${reservation.payment.totalAmount.toLocaleString("fr-FR")} € avec Google Pay`
@@ -74,6 +114,7 @@ export default function ReservationStep4Page() {
       footer={
         <PrimaryCTA
           onClick={handlePay}
+          disabled={submitting}
           icon={
             <svg
               viewBox="0 0 24 24"
@@ -145,6 +186,12 @@ export default function ReservationStep4Page() {
           <ShieldCheckIcon className="size-3" />
           Paiement 100% sécurisé · SSL · 3D Secure
         </div>
+
+        {error && (
+          <p className="text-center text-[12px] font-medium text-primary">
+            {error}
+          </p>
+        )}
       </div>
     </ReservationShell>
   );

@@ -9,6 +9,7 @@ import { authRouter } from "./modules/auth/auth.routes";
 import { interactionRouter } from "./modules/interactions/interaction.routes";
 import { paymentCardRouter } from "./modules/paymentCards/paymentCard.routes";
 import { profileRouter } from "./modules/profile/profile.routes";
+import { reservationRouter } from "./modules/reservations/reservation.routes";
 import { restaurantRouter } from "./modules/restaurants/restaurant.routes";
 import { userRouter } from "./modules/user/user.routes";
 import { redis } from "../lib/redis";
@@ -38,6 +39,7 @@ app.get("/health", async (_req, res) => {
 app.use("/auth", authRouter);
 app.use("/me/profile", profileRouter);
 app.use("/me/payment-cards", paymentCardRouter);
+app.use("/me/reservations", reservationRouter);
 app.use("/me", userRouter);
 app.use("/me", interactionRouter);
 app.use("/restaurants", restaurantRouter);
