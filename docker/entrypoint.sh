@@ -17,16 +17,26 @@ fi
 # pour ne pas crash le container.
 if [ -f /app/mydb.sql ]; then
   echo "[entrypoint] Applying mydb.sql..."
-  # `\connect` stripé : DATABASE_URL pointe déjà sur la bonne DB.
-  # `set +e` localement pour que set -e global n'interrompe pas le boot si
-  # psql rapporte une erreur non-fatale (FK, duplicate sans ON CONFLICT...).
+  # On récupère l'id réel de l'admin (créé par le seeder) et on substitue le
+  # placeholder `b10ed346-…` du dump par ce vrai id. Comme ça, pas besoin
+  # d'épingler l'id côté Prisma ni de supprimer un admin existant.
   set +e
-  grep -v '^\\connect' /app/mydb.sql | psql "$DATABASE_URL"
-  PSQL_EXIT=$?
-  set -e
-  if [ "$PSQL_EXIT" != "0" ]; then
-    echo "[entrypoint] mydb.sql exited $PSQL_EXIT — continuing boot."
+  ADMIN_REAL_ID=$(psql "$DATABASE_URL" -t -A \
+    -c "SELECT id FROM users WHERE email='admin@michelin.local' LIMIT 1;")
+  if [ -z "$ADMIN_REAL_ID" ]; then
+    echo "[entrypoint] admin introuvable — mydb.sql ignoré."
+  else
+    echo "[entrypoint] admin id = $ADMIN_REAL_ID"
+    # `\connect` stripé : DATABASE_URL pointe déjà sur la bonne DB.
+    grep -v '^\\connect' /app/mydb.sql \
+      | sed "s/b10ed346-5125-46da-b20f-b83551ae30b0/$ADMIN_REAL_ID/g" \
+      | psql "$DATABASE_URL"
+    PSQL_EXIT=$?
+    if [ "$PSQL_EXIT" != "0" ]; then
+      echo "[entrypoint] mydb.sql exited $PSQL_EXIT — continuing boot."
+    fi
   fi
+  set -e
 fi
 
 mkdir -p /app/public/uploads/videos /app/public/uploads/images

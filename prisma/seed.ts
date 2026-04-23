@@ -212,17 +212,6 @@ const seedAccommodations: SeedAccommodation[] = [
 ];
 
 async function main() {
-  // Garantit que l'admin a l'id épinglé requis par les FK de `mydb.sql`.
-  // Si un admin existe déjà avec un autre id (boot précédent sans pinning),
-  // on le supprime — le CASCADE s'occupe de ses restaurants/hébergements, qui
-  // seront recréés juste après via le seeder ou mydb.sql.
-  await prisma.user.deleteMany({
-    where: {
-      email: "admin@michelin.local",
-      NOT: { id: ADMIN_ID },
-    },
-  });
-
   let adminId: string | null = null;
 
   for (const u of seedUsers) {
