@@ -47,9 +47,11 @@ export const FeedSheet = ({
         <CubeIcon className="size-5" />
         <span className="text-[10px] font-semibold">Vue 3D</span>
       </Link>
-      <Button fullWidth trailingIcon={<ArrowRightIcon className="size-4" />}>
-        Réserver cette Escapade
-      </Button>
+      <Link href={`/restaurants/${id}`} className="flex-1">
+        <Button fullWidth trailingIcon={<ArrowRightIcon className="size-4" />}>
+          voir cette Escapade
+        </Button>
+      </Link>
     </div>
   </section>
 );

@@ -444,3 +444,92 @@ export const CheckCircleFilledIcon = (props: IconProps) => (
     />
   </svg>
 );
+
+export const UsersIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="m22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+export const BedIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M2 4v16" />
+    <path d="M2 8h18a2 2 0 0 1 2 2v10" />
+    <path d="M2 17h20" />
+    <path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+
+export const MinusIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+
+export const ChevronLeftIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="m15 18-6-6 6-6" />
+  </svg>
+);
+
+export const Share2Icon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
+  </svg>
+);
+
+export const CelebrationStarIcon = (props: IconProps) => (
+  <svg {...base} {...props} fill="currentColor" stroke="none">
+    <path d="m12 2 2.6 6.5L21 9l-5 4.5 1.5 6.5L12 17l-5.5 3L8 13.5 3 9l6.4-.5Z" />
+  </svg>
+);
+
+export const CakeIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+    <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1" />
+    <path d="M2 21h20" />
+    <path d="M7 8v3M12 8v3M17 8v3" />
+    <path d="M7 4h.01M12 4h.01M17 4h.01" />
+  </svg>
+);
+
+
+export const ShieldCheckIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
+
+export const PlaneIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+  </svg>
+);
+
+export const HomeIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2V9Z" />
+  </svg>
+);
+
+export const MessageCircleIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+  </svg>
+);
+
+export const WhatsAppIcon = (props: IconProps) => (
+  <svg {...props} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20.5 3.4A10 10 0 0 0 3.5 14l-1.5 5.5 5.6-1.5a10 10 0 0 0 15-8.6 10 10 0 0 0-2.1-6ZM12 20a8 8 0 0 1-4.1-1.1l-.3-.2-3.3.9.9-3.2-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.6-.8s-.4 0-.5.2l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.3 0-.5.1-.6l.4-.5a.4.4 0 0 0 0-.4L10 8.4c-.2-.4-.3-.3-.4-.3H9c-.2 0-.4 0-.6.3a2.3 2.3 0 0 0-.7 1.7 4 4 0 0 0 .8 2.1 9.1 9.1 0 0 0 3.9 3.4c1.4.5 2 .6 2.7.4a2 2 0 0 0 1.3-.9 1.6 1.6 0 0 0 .1-.9c0-.1-.2-.2-.4-.3Z" />
+  </svg>
+);
