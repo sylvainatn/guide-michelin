@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import html2canvas from "html2canvas";
+import { InstagramStoryTemplate } from "../molecules/InstagramStoryTemplate";
 import {
   ArrowLeftIcon,
   SlidersIcon,
@@ -37,6 +39,8 @@ export const HistoryDashboard = () => {
   const [activeTab, setActiveTab] = useState<Tab>("UPCOMING");
   const [reservations, setReservations] = useState<ReservationDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generatingStoryFor, setGeneratingStoryFor] = useState<ReservationDTO | null>(null);
+  const storyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -72,6 +76,54 @@ export const HistoryDashboard = () => {
     
     return `${startDay}–${endDay} ${month} ${year}`;
   };
+
+  const handleGenerateStory = async (res: ReservationDTO) => {
+    setGeneratingStoryFor(res);
+    // Wait for state to update and DOM to render
+    setTimeout(async () => {
+      if (!storyRef.current) return;
+      try {
+        const canvas = await html2canvas(storyRef.current, {
+          useCORS: true,
+          scale: 1, // The template is already 1080x1920
+          backgroundColor: "#000",
+        });
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+
+          const file = new File([blob], "story.jpeg", { type: "image/jpeg" });
+
+          if (
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({ files: [file] })
+          ) {
+            await navigator.share({
+              files: [file],
+              title: "Mon escapade Michelin",
+            });
+          } else {
+            // Fallback: download the image
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "michelin-story.jpeg";
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Open Instagram camera if possible (mostly works on mobile native apps)
+            window.location.href = "instagram://camera";
+          }
+          setGeneratingStoryFor(null);
+        }, "image/jpeg", 0.9);
+      } catch (err) {
+        console.error("Error generating story:", err);
+        setGeneratingStoryFor(null);
+      }
+    }, 100);
+  };
+
 
   return (
     <div className="flex h-full flex-col bg-white rounded-[20px] shadow-[0px_8px_40px_0px_rgba(0,0,0,0.08)]">
@@ -207,10 +259,14 @@ export const HistoryDashboard = () => {
                       </button>
 
                       {isPast ? (
-                        <button className="flex h-[40px] flex-1 items-center justify-center gap-[6px] rounded-[10px] bg-[#fdf0f2]">
+                        <button
+                          onClick={() => handleGenerateStory(res)}
+                          disabled={generatingStoryFor?.id === res.id}
+                          className="flex h-[40px] flex-1 items-center justify-center gap-[6px] rounded-[10px] bg-[#fdf0f2] disabled:opacity-50"
+                        >
                           <CameraIcon className="size-[14px] text-primary" />
                           <span className="font-['Noto_Sans',sans-serif] text-[12px] font-semibold leading-[14.4px] text-primary">
-                            Générer ma Story
+                            {generatingStoryFor?.id === res.id ? "Génération..." : "Générer ma Story"}
                           </span>
                         </button>
                       ) : (
@@ -229,6 +285,14 @@ export const HistoryDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Hidden Story Template for html2canvas */}
+      {generatingStoryFor && (
+        <InstagramStoryTemplate
+          ref={storyRef}
+          reservation={generatingStoryFor}
+        />
+      )}
     </div>
   );
 };

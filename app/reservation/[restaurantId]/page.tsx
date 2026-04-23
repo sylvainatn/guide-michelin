@@ -30,11 +30,17 @@ export default function ReservationPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   
+  const defaultCheckIn = new Date();
+  defaultCheckIn.setHours(0, 0, 0, 0);
+  defaultCheckIn.setDate(defaultCheckIn.getDate() + 14);
+  const defaultCheckOut = new Date(defaultCheckIn);
+  defaultCheckOut.setDate(defaultCheckOut.getDate() + 4);
+
   const [reservation, setReservation] = useState<Omit<ReservationStep1, 'restaurantName' | 'michelinStars'>>({
     restaurantId: "",
     dates: {
-      checkIn: new Date(2025, 9, 10),
-      checkOut: new Date(2025, 9, 14),
+      checkIn: defaultCheckIn,
+      checkOut: defaultCheckOut,
       nights: 4
     },
     guests: { adults: 4 },
@@ -280,9 +286,10 @@ export default function ReservationPage({ params }: PageProps) {
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-12">
           <button
             onClick={handleContinue}
-            className="w-full bg-primary text-white font-semibold text-sm py-3 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+            disabled={!reservation.dates}
+            className="w-full bg-primary text-white font-semibold text-sm py-3 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continuer
+            {reservation.dates ? "Continuer" : "Sélectionnez vos dates"}
             <ArrowRightIcon className="size-4" />
           </button>
         </div>
