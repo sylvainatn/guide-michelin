@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ConfettiBackground } from "@/components/molecules/reservation/ConfettiBackground";
-import { MichelinStar } from "@/components/atoms/MichelinStar";
 import {
   CelebrationStarIcon,
   HomeIcon,
@@ -15,6 +14,8 @@ import {
   reservationStorage,
 } from "@/lib/reservation/storage";
 import type { ReservationState } from "@/types/reservation";
+
+const MICHELIN_LOGO = "http://localhost:3845/assets/92b64abc25cb2d56d55ee2078b5bec2388493078.png";
 
 const MONTHS_LONG = [
   "janvier",
@@ -85,7 +86,7 @@ export default function ReservationStep5Page() {
 
   const handleHome = () => {
     reservationStorage.clear(restaurantId);
-    router.push("/");
+    router.push("/account/history");
   };
 
   return (
@@ -126,27 +127,35 @@ export default function ReservationStep5Page() {
             </p>
           </div>
 
-          <div className="flex w-full flex-col gap-4 rounded-3xl bg-tertiary p-6 shadow-[0_8px_32px_0_rgba(200,16,46,0.15)]">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-primary">
-                  <MichelinStar count={1} className="size-4" />
-                  LE GUIDE MICHELIN
-                </span>
-                <span className="font-['Playfair_Display',serif] text-[22px] font-bold text-white">
+          <div className="relative flex w-full flex-col items-center gap-4 rounded-3xl border-2 border-[#f0c0c8] bg-[#fdf0f2] p-6 shadow-[0_8px_32px_0_rgba(200,16,46,0.15)]">
+            <div className="flex w-full items-center justify-between">
+              <div className="relative z-10 flex w-full flex-col gap-1">
+                <div className="flex items-center gap-[6px]">
+                  <div className="relative h-[19px] w-[19px] shrink-0">
+                    <img
+                      src={MICHELIN_LOGO}
+                      alt=""
+                      className="absolute inset-0 size-full object-cover pointer-events-none max-w-none"
+                    />
+                  </div>
+                  <span className="font-['Noto_Sans',sans-serif] text-[9px] font-bold uppercase tracking-wider leading-[10.8px] text-primary">
+                    LE GUIDE MICHELIN
+                  </span>
+                </div>
+                <span className="z-10 break-words pr-[84px] font-['Playfair_Display',serif] text-[22px] font-bold text-primary">
                   {reservation.restaurantName ?? "Escapade"}
                 </span>
                 {reservation.address && (
-                  <span className="text-xs text-white/50">
+                  <span className="z-10 pr-[84px] text-xs text-primary">
                     {reservation.address}
                   </span>
                 )}
               </div>
 
-              <div className="flex size-[72px] items-center justify-center rounded-xl bg-white/10">
+              <div className="absolute right-6 top-6 z-0 flex size-[72px] items-center justify-center overflow-hidden rounded-xl bg-white border border-[#f0c0c8]">
                 <svg
                   viewBox="0 0 72 72"
-                  className="size-10 text-white/70"
+                  className="size-10 text-primary/40"
                   aria-hidden
                   fill="none"
                   stroke="currentColor"
@@ -159,9 +168,9 @@ export default function ReservationStep5Page() {
               </div>
             </div>
 
-            <div className="h-px w-full bg-white/10" />
+            <div className="h-px w-full bg-primary/20" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex w-full items-center justify-between">
               <Detail
                 label="ARRIVÉE"
                 value={
@@ -178,11 +187,10 @@ export default function ReservationStep5Page() {
               <Detail
                 label="ÉTOILE"
                 value={reservation.stars ? `★ ${reservation.stars}` : "—"}
-                accent
               />
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex w-full justify-center">
               <span className="inline-flex items-center gap-1.5 rounded-[10px] bg-primary px-3 py-1.5 text-[11px] font-semibold text-white">
                 <PlaneIcon className="size-3" />
                 Départ imminent
@@ -220,19 +228,16 @@ export default function ReservationStep5Page() {
 const Detail = ({
   label,
   value,
-  accent,
 }: {
   label: string;
   value: string;
   accent?: boolean;
 }) => (
   <div className="flex flex-col items-center gap-0.5 text-center">
-    <span className="text-[9px] font-medium uppercase tracking-wider text-white/40">
+    <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
       {label}
     </span>
-    <span
-      className={`text-sm font-bold ${accent ? "text-primary" : "text-white"}`}
-    >
+    <span className="text-sm font-bold text-primary">
       {value}
     </span>
   </div>
