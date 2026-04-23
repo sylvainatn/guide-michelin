@@ -8,9 +8,9 @@ node_modules
 *.log
 npm-debug.log
 .env
-.env.local
-.env.production
-.env.production.local
+.env.*
+!.env.example
+!.env.production.example
 coverage
 tests
 playwright-report
@@ -18,3 +18,5 @@ playwright.config.ts
 docs
 tsconfig.tsbuildinfo
 public/uploads
+mydb.sql
+Caddyfile

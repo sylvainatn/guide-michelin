@@ -42,3 +42,12 @@ export const me = async (req: Request, res: Response) => {
   const user = await authService.me(req.user!.id);
   res.json({ user });
 };
+
+// Utilisé par le middleware Next pour protéger `/dashboard`.
+// Lit le cookie refresh sans le rotate (pas d'effet de bord à chaque navigation).
+export const verifySession = async (req: Request, res: Response) => {
+  const token = req.cookies?.[REFRESH_COOKIE];
+  if (!token) throw Unauthorized("missing_refresh_token");
+  const user = await authService.verifySession(token);
+  res.json({ user });
+};

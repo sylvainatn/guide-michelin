@@ -1,12 +1,12 @@
 services:
   app:
-    # En prod l'image vient de GHCR (poussée par GitHub Actions).
-    # Override possible via APP_IMAGE dans .env.production pour un build local.
     image: ${APP_IMAGE}
     restart: always
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -16,6 +16,7 @@ services:
       API_PORT: 4000
       WEB_ORIGIN: ${WEB_ORIGIN}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-900}
@@ -24,9 +25,11 @@ services:
       - "3000:3000"
     volumes:
       - uploads_data:/app/public/uploads
+    mem_limit: 1g
+    cpus: 1.0
 
   postgres:
-    image: postgres:15
+    image: postgres:15.8-alpine
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -34,12 +37,26 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    mem_limit: 512m
+    cpus: 0.5
 
   redis:
-    image: redis:7
+    image: redis:7.4-alpine
     restart: always
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    mem_limit: 256m
+    cpus: 0.3
 
 volumes:
   postgres_data:

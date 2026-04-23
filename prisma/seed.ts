@@ -3,12 +3,7 @@ import { hashPassword } from "../api/modules/auth/password.service";
 import { prisma } from "../lib/prisma";
 import { DEFAULT_TOUR_CONFIG, type TourConfig } from "../lib/restaurants/tour-stops";
 
-// ID épinglé pour matcher les FK `ownerId` présentes dans `mydb.sql`
-// (dump Adminer exporté depuis l'environnement de dev).
-const ADMIN_ID = "b10ed346-5125-46da-b20f-b83551ae30b0";
-
 const seedUsers: Array<{
-  id?: string;
   email: string;
   pseudo: string;
   password: string;
@@ -17,7 +12,6 @@ const seedUsers: Array<{
   role: "ADMIN" | "USER";
 }> = [
   {
-    id: ADMIN_ID,
     email: "admin@michelin.local",
     pseudo: "admin",
     password: "Admin1234!",
@@ -336,7 +330,6 @@ async function main() {
         passwordHash,
       },
       create: {
-        ...(u.id ? { id: u.id } : {}),
         email: u.email,
         pseudo: u.pseudo,
         firstName: u.firstName,

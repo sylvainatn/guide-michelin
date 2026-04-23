@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Image runtime autonome : copie uniquement `.next/standalone` + `.next/static`
+  // + `public` dans le runner Docker. Réduit la taille d'image et la surface d'attaque.
+  output: "standalone",
 
   // Autorise l'accès aux ressources dev (HMR, etc.) depuis l'URL réseau affichée par Next.
   // Utile quand on ouvre l'app depuis un autre device sur le LAN.

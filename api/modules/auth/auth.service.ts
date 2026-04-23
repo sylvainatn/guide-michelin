@@ -104,6 +104,14 @@ export const logout = async (refreshToken: string | undefined) => {
   if (session) await revokeSession(session.id);
 };
 
+// Vérifie une session sans la rotate : utilisé par le middleware Next pour
+// protéger les routes sensibles. Pas d'effet de bord sur le refresh token.
+export const verifySession = async (refreshToken: string) => {
+  const session = await findValidSession(refreshToken);
+  if (!session) throw Unauthorized("invalid_refresh_token");
+  return publicUser(session.user);
+};
+
 export const me = async (userId: string) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw BadRequest("user_not_found", "User not found");
