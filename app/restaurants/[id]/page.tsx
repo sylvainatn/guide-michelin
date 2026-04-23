@@ -78,9 +78,9 @@ export default function RestaurantDetailPage() {
 
   const handleReserve = useCallback(() => {
     if (!restaurant) return;
-    const subject = encodeURIComponent(`Reservation -- ${restaurant.name}`);
-    window.open(`mailto:?subject=${subject}`, "_blank");
-  }, [restaurant]);
+    // Redirection vers le système de réservation
+    router.push(`/reservation/${restaurant.id}`);
+  }, [restaurant, router]);
 
   if (status !== "authenticated") {
     return (

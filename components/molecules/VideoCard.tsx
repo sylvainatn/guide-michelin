@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { FeedRestaurantDTO } from "../../lib/restaurants/client";
+import { ACCOMMODATION_CATEGORY_LABEL } from "../../lib/accommodations/client";
+import type { FeedItem } from "../../lib/feed/client";
 import { shareRestaurant } from "../../lib/restaurants/share";
 import { MuteToggle } from "../atoms/MuteToggle";
 import { Video } from "../atoms/Video";
@@ -22,7 +23,32 @@ const personaFrom = (style: string[]) => {
   return ["Pour vous", ...style].join(" · ");
 };
 
-export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
+const detailHref = (item: FeedItem) =>
+  item.kind === "restaurant"
+    ? `/restaurants/${item.id}`
+    : `/accommodations/${item.id}`;
+
+const personaOf = (item: FeedItem) => {
+  if (item.kind === "restaurant") return personaFrom(item.style);
+  return ["Hébergement", ACCOMMODATION_CATEGORY_LABEL[item.category]].join(
+    " · ",
+  );
+};
+
+const partnerTagOf = (item: FeedItem) => {
+  if (item.kind === "restaurant")
+    return item.stars && item.stars >= 1 ? TABLET_HOTELS : null;
+  if (typeof item.priceFromEur === "number")
+    return `À partir de ${item.priceFromEur} € / nuit`;
+  return null;
+};
+
+const ctaLabelOf = (item: FeedItem) =>
+  item.kind === "restaurant"
+    ? "Réserver cette Escapade"
+    : "Voir l'hébergement";
+
+export const VideoCard = ({ item }: { item: FeedItem }) => {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
@@ -79,6 +105,8 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
     void shareRestaurant({ id: item.id, name: item.name });
   }, [item.id, item.name]);
 
+  const href = detailHref(item);
+
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
     if (!t) return;
@@ -94,7 +122,7 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
     const dx = t.clientX - start.x;
     const dy = t.clientY - start.y;
     if (dx <= -SWIPE_THRESHOLD_PX && Math.abs(dy) < SWIPE_MAX_VERTICAL_DRIFT) {
-      router.push(`/restaurants/${item.id}`);
+      router.push(href);
     }
   };
 
@@ -115,11 +143,17 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
 
       <VideoPlayIndicator playing={playing} />
 
-      <FeedTopbar persona={personaFrom(item.style)} />
+      <FeedTopbar persona={personaOf(item)} />
       <FeedActionRail
-        restaurantId={item.id}
-        initialSaved={item.bookmarkedByMe}
-        initialFavorited={item.favoritedByMe}
+        bookmark={
+          item.kind === "restaurant"
+            ? {
+                restaurantId: item.id,
+                initialSaved: item.bookmarkedByMe,
+                initialFavorited: item.favoritedByMe,
+              }
+            : undefined
+        }
         onShare={handleShare}
       />
 
@@ -128,11 +162,15 @@ export const VideoCard = ({ item }: { item: FeedRestaurantDTO }) => {
       </div>
 
       <FeedSheet
-        id={item.id}
+        href={href}
         name={item.name}
         address={item.address}
         stars={item.stars}
-        partnerTag={item.stars && item.stars >= 1 ? TABLET_HOTELS : null}
+        partnerTag={partnerTagOf(item)}
+        ctaLabel={ctaLabelOf(item)}
+        tourHref={
+          item.kind === "restaurant" ? `/restaurants/${item.id}?tour=1` : null
+        }
       />
 
       <div className="absolute inset-x-0 bottom-0 z-30">

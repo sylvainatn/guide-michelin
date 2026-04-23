@@ -51,7 +51,7 @@ export const OnboardingWizard = () => {
         },
         accessToken,
       );
-      router.push("/feed");
+      router.push("/");
     } catch {
       setSubmitting(false);
     }

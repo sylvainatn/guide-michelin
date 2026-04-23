@@ -82,21 +82,6 @@ export type UpdateRestaurantInput = {
   style?: string[];
 };
 
-export type FeedRestaurantDTO = {
-  id: string;
-  name: string;
-  description: string;
-  address: string;
-  videoUrl: string;
-  mainImageUrl: string | null;
-  chefName: string | null;
-  stars: number | null;
-  style: string[];
-  createdAt: string;
-  bookmarkedByMe: boolean;
-  favoritedByMe: boolean;
-};
-
 export const restaurantApi = {
   create: (accessToken: string, input: CreateRestaurantInput) =>
     request<{ restaurant: RestaurantDTO }>("/restaurants", {
@@ -107,12 +92,6 @@ export const restaurantApi = {
 
   listMine: (accessToken: string) =>
     request<{ restaurants: RestaurantDTO[] }>("/restaurants", {
-      method: "GET",
-      accessToken,
-    }),
-
-  feed: (accessToken: string) =>
-    request<{ restaurants: FeedRestaurantDTO[] }>("/restaurants/feed", {
       method: "GET",
       accessToken,
     }),

@@ -56,6 +56,33 @@ enum CardBrand {
   CARD
 }
 
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum ReservationPaymentMethod {
+  APPLE_PAY
+  GOOGLE_PAY
+  CARD
+}
+
+enum ReservationEventType {
+  MARIAGE
+  EVJF
+  ANNIVERSAIRE
+  SAINT_VALENTIN
+}
+enum AccommodationCategory {
+  HOTEL
+  BED_AND_BREAKFAST
+  CHALET
+  VILLA
+  APARTMENT
+  RESORT
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
@@ -74,6 +101,8 @@ model User {
   bookmarks     Bookmark[]
   favorites     Favorite[]
   paymentCards  PaymentCard[]
+  reservations  Reservation[]
+  accommodations Accommodation[]
 
   @@map("users")
 }
@@ -137,6 +166,7 @@ model Restaurant {
   bookmarks   Bookmark[]
   favorites   Favorite[]
   review      MichelinReview?
+  reservations Reservation[]
 
   @@map("restaurants")
 }
@@ -206,6 +236,66 @@ model PaymentCard {
 
   @@index([userId])
   @@map("payment_cards")
+}
+
+model Reservation {
+  id              String                    @id @default(cuid())
+  userId          String
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId    String
+  restaurant      Restaurant                @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  checkIn         DateTime
+  checkOut        DateTime
+  nights          Int
+  adults          Int
+  children        Int                       @default(0)
+
+  roomId          String?
+  roomName        String?
+  roomCategory    String?
+
+  eventType       ReservationEventType?
+  customRequest   String?
+
+  invitedFriends  Json?
+  michelinExtras  Json?
+
+  paymentMethod   ReservationPaymentMethod
+  cardLast4       String?
+  totalAmount     Int
+  pricePerPerson  Int
+
+  status          ReservationStatus         @default(CONFIRMED)
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([userId])
+  @@index([restaurantId])
+  @@map("reservations")
+
+}
+model Accommodation {
+  id            String                @id @default(cuid())
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  name          String
+  description   String
+  address       String
+  category      AccommodationCategory
+  stars         Int?
+  priceFromEur  Int?
+  mainImageUrl  String?
+  videoUrl      String?
+  video360      Boolean               @default(false)
+  amenities     String[]              @default([])
+  photos        String[]              @default([])
+
+  owner         User                  @relation(fields: [ownerId], references: [id])
+  ownerId       String
+
+  @@index([ownerId])
+  @@map("accommodations")
 }
 
 model Article {

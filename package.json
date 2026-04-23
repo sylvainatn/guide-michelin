@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "docker compose up -d && concurrently -n next,api -c blue,green --kill-others \"next dev\" \"tsx watch api/server.ts\"",
+    "dev": "docker compose up -d && npx prisma migrate dev && npm run seed && concurrently -n next,api -c blue,green --kill-others \"next dev\" \"tsx watch api/server.ts\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -47,5 +47,8 @@
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

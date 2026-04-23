@@ -28,7 +28,7 @@ ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0
 
-RUN apk add --no-cache openssl tini wget \
+RUN apk add --no-cache openssl postgresql-client tini wget \
     && addgroup -S michelin \
     && adduser -S -u 1001 -G michelin michelin
 
@@ -47,6 +47,8 @@ COPY --from=builder --chown=michelin:michelin /app/postcss.config.mjs ./postcss.
 COPY --from=builder --chown=michelin:michelin /app/prisma.config.ts   ./prisma.config.ts
 COPY --from=builder --chown=michelin:michelin /app/package.json       ./package.json
 COPY --from=builder --chown=michelin:michelin /app/package-lock.json  ./package-lock.json
+# Dump SQL optionnel — appliqué par l'entrypoint s'il est présent.
+COPY --from=builder --chown=michelin:michelin /app/mydb.sql           ./mydb.sql
 
 COPY --chown=michelin:michelin docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh \

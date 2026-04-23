@@ -7,15 +7,12 @@ import { MutedText } from "../../components/atoms/MutedText";
 import { VideoFeed } from "../../components/organisms/VideoFeed";
 import { ApiError } from "../../lib/auth/client";
 import { useAuth } from "../../lib/auth/context";
-import {
-  type FeedRestaurantDTO,
-  restaurantApi,
-} from "../../lib/restaurants/client";
+import { type FeedItem, feedApi } from "../../lib/feed/client";
 
 export default function FeedPage() {
   const router = useRouter();
   const { status, getAccessToken } = useAuth();
-  const [items, setItems] = useState<FeedRestaurantDTO[] | null>(null);
+  const [items, setItems] = useState<FeedItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,10 +27,10 @@ export default function FeedPage() {
     let cancelled = false;
     (async () => {
       try {
-        const { restaurants } = await restaurantApi.feed(token);
+        const { items: list } = await feedApi.list(token);
         if (!cancelled) {
           setError(null);
-          setItems(restaurants);
+          setItems(list);
         }
       } catch (err) {
         if (cancelled) return;

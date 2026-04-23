@@ -3,14 +3,27 @@ import { hashPassword } from "../api/modules/auth/password.service";
 import { prisma } from "../lib/prisma";
 import { DEFAULT_TOUR_CONFIG, type TourConfig } from "../lib/restaurants/tour-stops";
 
-const seedUsers = [
+// ID épinglé pour matcher les FK `ownerId` présentes dans `mydb.sql`
+// (dump Adminer exporté depuis l'environnement de dev).
+const ADMIN_ID = "b10ed346-5125-46da-b20f-b83551ae30b0";
+
+const seedUsers: Array<{
+  id?: string;
+  email: string;
+  pseudo: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: "ADMIN" | "USER";
+}> = [
   {
+    id: ADMIN_ID,
     email: "admin@michelin.local",
     pseudo: "admin",
     password: "Admin1234!",
     firstName: "Ada",
     lastName: "Admin",
-    role: "ADMIN" as const,
+    role: "ADMIN",
   },
   {
     email: "user@michelin.local",
@@ -18,7 +31,7 @@ const seedUsers = [
     password: "User1234!",
     firstName: "Ulysse",
     lastName: "User",
-    role: "USER" as const,
+    role: "USER",
   },
 ];
 
@@ -47,6 +60,23 @@ type SeedRestaurant = {
   style: string[];
   tourStops: TourConfig;
   review: SeedReview;
+};
+
+type SeedAccommodation = {
+  slug: string;
+  name: string;
+  description: string;
+  address: string;
+  category:
+    | "HOTEL"
+    | "BED_AND_BREAKFAST"
+    | "CHALET"
+    | "VILLA"
+    | "APARTMENT"
+    | "RESORT";
+  stars?: number;
+  priceFromEur?: number;
+  amenities?: string[];
 };
 
 const seedRestaurants: SeedRestaurant[] = [
@@ -145,6 +175,42 @@ const seedRestaurants: SeedRestaurant[] = [
   },
 ];
 
+const seedAccommodations: SeedAccommodation[] = [
+  {
+    slug: "villa-cap-ferret",
+    name: "Villa Cap Ferret",
+    description:
+      "Villa les pieds dans le sable, toit-terrasse panoramique sur le bassin d'Arcachon. Piscine chauffee, chef prive sur demande.",
+    address: "Cap Ferret, Gironde",
+    category: "VILLA",
+    stars: 5,
+    priceFromEur: 860,
+    amenities: ["Piscine", "Spa", "Plage privee", "Chef prive"],
+  },
+  {
+    slug: "chalet-megeve-alpina",
+    name: "Chalet Megeve Alpina",
+    description:
+      "Chalet familial pied des pistes, cheminee, cave a vin et spa nordique. Vue imprenable sur le Mont-Blanc.",
+    address: "Megeve, Haute-Savoie",
+    category: "CHALET",
+    stars: 4,
+    priceFromEur: 520,
+    amenities: ["Spa nordique", "Cheminee", "Ski in/out"],
+  },
+  {
+    slug: "hotel-maison-lumiere",
+    name: "Maison Lumiere Hotel",
+    description:
+      "18 suites feutrees a deux pas des Champs-Elysees, bar a champagnes et voiturier 24/7.",
+    address: "8eme arrondissement, Paris",
+    category: "HOTEL",
+    stars: 5,
+    priceFromEur: 490,
+    amenities: ["Spa", "Bar", "Voiturier", "Concierge"],
+  },
+];
+
 async function main() {
   let adminId: string | null = null;
 
@@ -160,6 +226,7 @@ async function main() {
         passwordHash,
       },
       create: {
+        ...(u.id ? { id: u.id } : {}),
         email: u.email,
         pseudo: u.pseudo,
         firstName: u.firstName,
@@ -209,6 +276,30 @@ async function main() {
       create: { restaurantId, ...r.review },
     });
     console.log(`ok REVIEW ${r.name}`);
+  }
+
+  for (const a of seedAccommodations) {
+    const existing = await prisma.accommodation.findFirst({
+      where: { name: a.name, ownerId: adminId },
+      select: { id: true },
+    });
+    const data = {
+      name: a.name,
+      description: a.description,
+      address: a.address,
+      category: a.category,
+      stars: a.stars,
+      priceFromEur: a.priceFromEur,
+      amenities: a.amenities ?? [],
+      ownerId: adminId,
+    };
+    if (existing) {
+      await prisma.accommodation.update({ where: { id: existing.id }, data });
+      console.log(`ok HEBER  ${a.name}  (updated)`);
+    } else {
+      const created = await prisma.accommodation.create({ data });
+      console.log(`ok HEBER  ${a.name}  (created, id=${created.id})`);
+    }
   }
 }
 
