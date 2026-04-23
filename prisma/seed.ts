@@ -3,12 +3,7 @@ import { hashPassword } from "../api/modules/auth/password.service";
 import { prisma } from "../lib/prisma";
 import { DEFAULT_TOUR_CONFIG, type TourConfig } from "../lib/restaurants/tour-stops";
 
-// ID épinglé pour matcher les FK `ownerId` présentes dans `mydb.sql`
-// (dump Adminer exporté depuis l'environnement de dev).
-const ADMIN_ID = "b10ed346-5125-46da-b20f-b83551ae30b0";
-
 const seedUsers: Array<{
-  id?: string;
   email: string;
   pseudo: string;
   password: string;
@@ -17,7 +12,6 @@ const seedUsers: Array<{
   role: "ADMIN" | "USER";
 }> = [
   {
-    id: ADMIN_ID,
     email: "admin@michelin.local",
     pseudo: "admin",
     password: "Admin1234!",
@@ -32,6 +26,115 @@ const seedUsers: Array<{
     firstName: "Ulysse",
     lastName: "User",
     role: "USER",
+  },
+];
+
+/**
+ * Amis fictifs connectés à l'utilisateur `ulysse` (seedUsers[1]).
+ * `onlineMinutesAgo` : simule le `lastSeenAt` (null = hors-ligne).
+ * `relation` : ACCEPTED = ami, PENDING_INCOMING = invitation reçue,
+ * PENDING_OUTGOING = invitation envoyée.
+ */
+type SeedFriend = {
+  email: string;
+  pseudo: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  onlineMinutesAgo: number | null;
+  relation: "ACCEPTED" | "PENDING_INCOMING" | "PENDING_OUTGOING";
+};
+
+const seedFriends: SeedFriend[] = [
+  {
+    email: "adrien@michelin.local",
+    pseudo: "adrien_m",
+    password: "Friend1234!",
+    firstName: "Adrien",
+    lastName: "Martin",
+    onlineMinutesAgo: 1,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "sophie@michelin.local",
+    pseudo: "sophie_l",
+    password: "Friend1234!",
+    firstName: "Sophie",
+    lastName: "Laurent",
+    onlineMinutesAgo: 2,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "lucas@michelin.local",
+    pseudo: "lucas_d",
+    password: "Friend1234!",
+    firstName: "Lucas",
+    lastName: "Dupont",
+    onlineMinutesAgo: null,
+    relation: "PENDING_INCOMING",
+  },
+  {
+    email: "camille@michelin.local",
+    pseudo: "camille_r",
+    password: "Friend1234!",
+    firstName: "Camille",
+    lastName: "Rousseau",
+    onlineMinutesAgo: null,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "thomas@michelin.local",
+    pseudo: "thomas_b",
+    password: "Friend1234!",
+    firstName: "Thomas",
+    lastName: "Bernard",
+    onlineMinutesAgo: 120,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "julie@michelin.local",
+    pseudo: "julie_p",
+    password: "Friend1234!",
+    firstName: "Julie",
+    lastName: "Petit",
+    onlineMinutesAgo: null,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "maxime@michelin.local",
+    pseudo: "maxime_g",
+    password: "Friend1234!",
+    firstName: "Maxime",
+    lastName: "Garcia",
+    onlineMinutesAgo: 3,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "lea@michelin.local",
+    pseudo: "lea_f",
+    password: "Friend1234!",
+    firstName: "Léa",
+    lastName: "Fontaine",
+    onlineMinutesAgo: null,
+    relation: "ACCEPTED",
+  },
+  {
+    email: "nina@michelin.local",
+    pseudo: "nina_c",
+    password: "Friend1234!",
+    firstName: "Nina",
+    lastName: "Chen",
+    onlineMinutesAgo: null,
+    relation: "PENDING_INCOMING",
+  },
+  {
+    email: "paul@michelin.local",
+    pseudo: "paul_v",
+    password: "Friend1234!",
+    firstName: "Paul",
+    lastName: "Vasseur",
+    onlineMinutesAgo: null,
+    relation: "PENDING_OUTGOING",
   },
 ];
 
@@ -213,6 +316,7 @@ const seedAccommodations: SeedAccommodation[] = [
 
 async function main() {
   let adminId: string | null = null;
+  let ulysseId: string | null = null;
 
   for (const u of seedUsers) {
     const passwordHash = await hashPassword(u.password);
@@ -226,7 +330,6 @@ async function main() {
         passwordHash,
       },
       create: {
-        ...(u.id ? { id: u.id } : {}),
         email: u.email,
         pseudo: u.pseudo,
         firstName: u.firstName,
@@ -237,10 +340,69 @@ async function main() {
       },
     });
     if (user.role === "ADMIN") adminId = user.id;
+    if (user.pseudo === "ulysse") ulysseId = user.id;
     console.log(`ok ${user.role.padEnd(5)}  ${user.email}  (password: ${u.password})`);
   }
 
   if (!adminId) throw new Error("Admin user missing, cannot seed restaurants.");
+  if (!ulysseId) throw new Error("Ulysse user missing, cannot seed friendships.");
+
+  // ---------- AMIS FICTIFS + FRIENDSHIPS ----------
+  for (const f of seedFriends) {
+    const passwordHash = await hashPassword(f.password);
+    const lastSeenAt =
+      f.onlineMinutesAgo === null
+        ? null
+        : new Date(Date.now() - f.onlineMinutesAgo * 60 * 1000);
+
+    const friend = await prisma.user.upsert({
+      where: { email: f.email },
+      update: {
+        pseudo: f.pseudo,
+        firstName: f.firstName,
+        lastName: f.lastName,
+        passwordHash,
+        lastSeenAt,
+      },
+      create: {
+        email: f.email,
+        pseudo: f.pseudo,
+        firstName: f.firstName,
+        lastName: f.lastName,
+        role: "USER",
+        passwordHash,
+        emailVerified: new Date(),
+        lastSeenAt,
+      },
+    });
+
+    const { requesterId, addresseeId, status } =
+      f.relation === "PENDING_INCOMING"
+        ? { requesterId: friend.id, addresseeId: ulysseId, status: "PENDING" as const }
+        : f.relation === "PENDING_OUTGOING"
+          ? { requesterId: ulysseId, addresseeId: friend.id, status: "PENDING" as const }
+          : { requesterId: ulysseId, addresseeId: friend.id, status: "ACCEPTED" as const };
+
+    // On nettoie les deux directions possibles pour être idempotent sur le re-seed
+    await prisma.friendship.deleteMany({
+      where: {
+        OR: [
+          { requesterId: ulysseId, addresseeId: friend.id },
+          { requesterId: friend.id, addresseeId: ulysseId },
+        ],
+      },
+    });
+
+    await prisma.friendship.create({
+      data: { requesterId, addresseeId, status },
+    });
+
+    const onlineTag =
+      f.onlineMinutesAgo !== null && f.onlineMinutesAgo < 5 ? "🟢" : "⚪";
+    console.log(
+      `ok FRIEND ${onlineTag} ${f.pseudo.padEnd(10)}  (${f.relation})`,
+    );
+  }
 
   for (const r of seedRestaurants) {
     // Pas d'unique sur name/slug : on cherche par (name, ownerId) pour idempotence.

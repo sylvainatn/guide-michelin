@@ -7,12 +7,14 @@ import { AccountDashboard } from "../../components/organisms/AccountDashboard";
 import { useAuth } from "../../lib/auth/context";
 import { profileApi, type UserProfile } from "../../lib/auth/client";
 import { reservationApi } from "../../lib/reservation/client";
+import { friendsApi } from "../../lib/friends/client";
 
 export default function AccountPage() {
   const router = useRouter();
   const { user, status, logout, getAccessToken } = useAuth();
   const [escapades, setEscapades] = useState<number>(0);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [tribeCount, setTribeCount] = useState<number>(0);
 
   useEffect(() => {
     if (status === "unauthenticated") router.replace("/signin");
@@ -41,6 +43,13 @@ export default function AccountPage() {
       })
       .catch(console.error);
 
+    friendsApi
+      .list(token)
+      .then((res) => {
+        if (!cancelled) setTribeCount(res.friends.length);
+      })
+      .catch(console.error);
+
     return () => {
       cancelled = true;
     };
@@ -65,6 +74,7 @@ export default function AccountPage() {
           user={user}
           escapades={escapades}
           age={profile?.age ?? null}
+          tribeCount={tribeCount}
           onLogout={handleLogout}
         />
       </div>

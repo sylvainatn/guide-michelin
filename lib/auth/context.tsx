@@ -25,7 +25,7 @@ type AuthContextValue = AuthState & {
     firstName: string;
   }) => Promise<void>;
   login: (input: {
-    identifier: string;
+    email: string;
     password: string;
   }) => Promise<PublicUser>;
   logout: () => Promise<void>;

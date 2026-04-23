@@ -54,12 +54,11 @@ export const signup = async (
 };
 
 export const login = async (
-  input: { identifier: string; password: string },
+  input: { email: string; password: string },
   ctx: Ctx,
 ) => {
-  const isEmail = input.identifier.includes("@");
   const user = await prisma.user.findUnique({
-    where: isEmail ? { email: input.identifier } : { pseudo: input.identifier },
+    where: { email: input.email.toLowerCase() },
   });
   if (!user) throw Unauthorized("invalid_credentials", "Invalid credentials");
 
@@ -103,6 +102,14 @@ export const logout = async (refreshToken: string | undefined) => {
   if (!refreshToken) return;
   const session = await findValidSession(refreshToken);
   if (session) await revokeSession(session.id);
+};
+
+// Vérifie une session sans la rotate : utilisé par le middleware Next pour
+// protéger les routes sensibles. Pas d'effet de bord sur le refresh token.
+export const verifySession = async (refreshToken: string) => {
+  const session = await findValidSession(refreshToken);
+  if (!session) throw Unauthorized("invalid_refresh_token");
+  return publicUser(session.user);
 };
 
 export const me = async (userId: string) => {

@@ -5,6 +5,8 @@ export const REFRESH_COOKIE = "refresh_token";
 
 const baseOptions: CookieOptions = {
   httpOnly: true,
+  // `lax` tant qu'on est en HTTP pur : `strict` exigerait Secure (HTTPS).
+  // À passer à `strict` dès qu'un reverse proxy TLS est en place (Caddy/Traefik).
   sameSite: "lax",
   secure: env.COOKIE_SECURE,
   // Omis en dev : Chrome rejette `domain=localhost` et laisser undefined

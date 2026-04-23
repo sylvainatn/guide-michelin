@@ -56,6 +56,15 @@ export const reservationStorage = {
   },
 };
 
+const buildDefaultDates = () => {
+  const checkIn = new Date();
+  checkIn.setHours(0, 0, 0, 0);
+  checkIn.setDate(checkIn.getDate() + 14);
+  const checkOut = new Date(checkIn);
+  checkOut.setDate(checkOut.getDate() + 4);
+  return { checkIn, checkOut, nights: 4 };
+};
+
 export const buildDefaultReservation = (
   restaurantId: string,
   overrides: Partial<ReservationState> = {},
@@ -65,11 +74,7 @@ export const buildDefaultReservation = (
   chefName: overrides.chefName,
   stars: overrides.stars ?? null,
   address: overrides.address,
-  dates: overrides.dates ?? {
-    checkIn: new Date(2025, 9, 10),
-    checkOut: new Date(2025, 9, 14),
-    nights: 4,
-  },
+  dates: overrides.dates ?? buildDefaultDates(),
   guests: overrides.guests ?? { adults: 4 },
   roomOptions:
     overrides.roomOptions ?? [
