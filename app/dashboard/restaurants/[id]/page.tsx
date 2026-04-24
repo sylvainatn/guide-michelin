@@ -54,6 +54,9 @@ export default function EditRestaurantPage() {
   const [priceRange, setPriceRange] = useState<PriceRange>(DEFAULT_PRICE_RANGE);
   const [priceRangeEnabled, setPriceRangeEnabled] = useState(false);
   const [style, setStyle] = useState("");
+  const [photos360, setPhotos360] = useState<string[]>([]);
+  const [photoUrlInput, setPhotoUrlInput] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [videoSource, setVideoSource] = useState<VideoSource>("none");
   const [videoUrl, setVideoUrl] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -98,6 +101,7 @@ export default function EditRestaurantPage() {
           setPriceRangeEnabled(false);
         }
         setStyle(restaurant.style.join(", "));
+        setPhotos360(restaurant.photos360 ?? []);
         setCurrentVideoUrl(restaurant.videoUrl);
         if (restaurant.videoUrl) {
           setVideoSource("url");
@@ -189,6 +193,7 @@ export default function EditRestaurantPage() {
         stars: parsedStars > 0 ? parsedStars : null,
         priceRange: priceRangeEnabled ? priceRange : null,
         style: trimmedStyle,
+        photos360,
       };
       if (nextVideoUrl !== undefined) input.videoUrl = nextVideoUrl;
       if (nextImageUrl !== undefined) input.mainImageUrl = nextImageUrl;
@@ -420,51 +425,87 @@ export default function EditRestaurantPage() {
 
         <fieldset className="space-y-3 rounded-md border border-neutral-200 p-4">
           <legend className="px-1 text-h2 text-neutral-700">
-            Image principale (optionnel)
+            Photos 360° (optionnel)
           </legend>
 
-          {currentImageUrl && imageSource !== "upload" && (
-            <MutedText>Image actuelle : {currentImageUrl}</MutedText>
+          {/* Liste des photos en cours */}
+          {photos360.length > 0 && (
+            <ul className="space-y-2">
+              {photos360.map((url, i) => (
+                <li key={url} className="flex items-center gap-2 rounded-md bg-neutral-50 px-3 py-2">
+                  <span className="flex-1 truncate font-mono text-xs text-neutral-600">{url}</span>
+                  <button
+                    type="button"
+                    onClick={() => setPhotos360((prev) => prev.filter((_, j) => j !== i))}
+                    className="shrink-0 text-xs text-red-500 hover:text-red-700"
+                  >
+                    Retirer
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
 
-          <RadioGroup
-            name="imageSource"
-            value={imageSource}
-            options={IMAGE_SOURCE_OPTIONS}
-            onChange={(next) => {
-              setImageSource(next);
-              if (next !== "url") setImageUrl("");
-              if (next !== "upload") setImageFile(null);
-            }}
-          />
+          {photos360.length === 0 && (
+            <MutedText>Aucune photo 360° — le bouton «&nbsp;Vue 360°&nbsp;» n'apparaîtra pas sur la fiche.</MutedText>
+          )}
 
-          {imageSource === "url" && (
-            <FormField
-              label="URL de l'image"
-              type="url"
-              value={imageUrl}
-              onChange={setImageUrl}
-              placeholder="https://images.example.com/photo.jpg"
-              maxLength={2000}
+          {/* Upload fichier — méthode principale */}
+          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-200 p-4 text-sm text-neutral-500 hover:border-primary hover:text-primary has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>{uploadingPhoto ? "Upload en cours…" : "Cliquer pour uploader une photo 360°"}</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              disabled={uploadingPhoto}
+              className="sr-only"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const token = getAccessToken();
+                if (!token) return;
+                setUploadingPhoto(true);
+                try {
+                  const { url } = await restaurantApi.uploadImage(token, file);
+                  setPhotos360((prev) => [...prev, url]);
+                } catch {
+                  setError("Échec de l'upload de la photo.");
+                } finally {
+                  setUploadingPhoto(false);
+                  e.target.value = "";
+                }
+              }}
             />
-          )}
+          </label>
 
-          {imageSource === "upload" && (
-            <label className="block space-y-1.5">
-              <Label>Fichier image (jpg, png, webp, avif — max 10 Mo)</Label>
+          {/* Ajout via URL — méthode secondaire */}
+          <div className="space-y-1">
+            <p className="text-center text-xs text-neutral-400">ou ajouter via une URL externe</p>
+            <div className="flex gap-2">
               <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/avif"
-                onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-                className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-2 file:text-sm file:font-medium hover:file:bg-neutral-200"
+                type="url"
+                value={photoUrlInput}
+                onChange={(e) => setPhotoUrlInput(e.target.value)}
+                placeholder="https://example.com/panorama.jpg"
+                className="flex-1 rounded-md border border-neutral-200 px-3 py-2 text-sm focus:border-primary focus:outline-none"
               />
-              {imageFile && (
-                <MutedText>
-                  {imageFile.name} — {(imageFile.size / (1024 * 1024)).toFixed(1)} Mo
-                </MutedText>
-              )}
-            </label>
-          )}
+              <button
+                type="button"
+                onClick={() => {
+                  const trimmed = photoUrlInput.trim();
+                  if (trimmed.length > 0) {
+                    setPhotos360((prev) => [...prev, trimmed]);
+                    setPhotoUrlInput("");
+                  }
+                }}
+                className="rounded-md border border-neutral-200 px-3 py-2 text-sm font-medium hover:bg-neutral-50"
+              >
+                Ajouter
+              </button>
+            </div>
+          </div>
         </fieldset>
 
         {error && <ErrorText>{error}</ErrorText>}

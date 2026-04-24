@@ -65,6 +65,7 @@ export type CreateRestaurantInput = {
   stars?: number;
   priceRange?: PriceRange;
   style?: string[];
+  photos360?: string[];
 };
 
 // Pour PATCH : `undefined` = champ inchange, `null` = efface la valeur
@@ -80,6 +81,7 @@ export type UpdateRestaurantInput = {
   stars?: number | null;
   priceRange?: PriceRange | null;
   style?: string[];
+  photos360?: string[];
 };
 
 export const restaurantApi = {

@@ -13,5 +13,6 @@ export const Video = ({ className = "", ref, ...props }: VideoProps) => (
     preload="metadata"
     {...props}
     className={`h-full w-full object-cover ${className}`}
+    suppressHydrationWarning
   />
 );

@@ -18,6 +18,7 @@ export const listFeed = async (req: Request, res: Response) => {
           stars: true,
           chefName: true,
           style: true,
+          photos360: true,
           createdAt: true,
         },
       }),

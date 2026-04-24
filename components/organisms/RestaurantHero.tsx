@@ -8,7 +8,7 @@ import { Tour3DButton } from "../atoms/Tour3DButton";
 
 type Props = {
   restaurant: RestaurantDetailDTO;
-  onOpenTour: () => void;
+  onOpenTour?: () => void;
   onReserve: () => void;
   onShare: () => void;
   onSave?: () => void;
@@ -172,7 +172,9 @@ export const RestaurantHero = ({
 
         {/* CTA row */}
         <div className="mt-5 flex items-stretch gap-3 pb-6">
-          <Tour3DButton onClick={onOpenTour} />
+          {(restaurant.photos360?.length ?? 0) > 0 && (
+            <Tour3DButton onClick={onOpenTour} />
+          )}
           <Button onClick={onReserve} className="flex-1 text-h1">
             Reserver cette Escapade
             <span aria-hidden="true">&nbsp;&rarr;</span>
