@@ -1,8 +1,15 @@
+import dynamic from "next/dynamic";
 import { CameraIcon, ClockIcon, PinIcon, StarFilledIcon } from "../atoms/icons";
+
+const InlinePhotoSphere = dynamic(
+  () => import("./InlinePhotoSphere"),
+  { ssr: false }
+);
 
 type Props = {
   name: string;
   mediaUrl: string | null;
+  photos360?: string[];
   stars: number | null;
   priceFromEur: number | null;
   tripDuration: string | null;
@@ -37,6 +44,7 @@ const Pill = ({
 export const RestaurantDetailHero = ({
   name,
   mediaUrl,
+  photos360,
   stars,
   priceFromEur,
   tripDuration,
@@ -48,17 +56,21 @@ export const RestaurantDetailHero = ({
   const starLabel =
     stars === 1 ? "1 Étoile Michelin" : `${stars} Étoiles Michelin`;
 
+  const hasPhoto360 = photos360 && photos360.length > 0;
+
   return (
-    <section className="relative overflow-hidden rounded-3xl">
-      {mediaUrl ? (
+    <section className="relative overflow-hidden rounded-3xl h-[320px]">
+      {hasPhoto360 ? (
+        <InlinePhotoSphere photo={photos360[0]} />
+      ) : mediaUrl ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
           src={mediaUrl}
           alt={name}
-          className="h-[320px] w-full object-cover"
+          className="h-full w-full object-cover"
         />
       ) : (
-        <div className="h-[320px] w-full bg-linear-to-br from-michelin-red-300 to-tertiary" />
+        <div className="h-full w-full bg-linear-to-br from-michelin-red-300 to-tertiary" />
       )}
 
       <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/35" />
