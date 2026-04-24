@@ -559,3 +559,12 @@ export const UserPlusIcon = (props: IconProps) => (
     <line x1="22" x2="16" y1="11" y2="11" />
   </svg>
 );
+
+export const LayoutGridIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <rect x="14" y="14" width="7" height="7" rx="1" />
+  </svg>
+);
