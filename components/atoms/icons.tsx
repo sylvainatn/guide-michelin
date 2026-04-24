@@ -163,20 +163,22 @@ export const SparklesIcon = (props: IconProps) => (
   </svg>
 );
 
-export const RosetteIcon = (props: IconProps) => {
-  const petals = Array.from({ length: 6 }).map((_, i) => {
-    const angle = (i * 60 * Math.PI) / 180;
-    const cx = 12 + Math.cos(angle) * 4.6;
-    const cy = 12 + Math.sin(angle) * 4.6;
-    return <circle key={i} cx={cx} cy={cy} r="4" fill="currentColor" />;
-  });
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
-      {petals}
-      <circle cx="12" cy="12" r="4" fill="currentColor" />
-    </svg>
-  );
-};
+const ROSETTE_PETALS = Array.from({ length: 6 }).map((_, i) => {
+  const angle = (i * 60 * Math.PI) / 180;
+  return {
+    cx: parseFloat((12 + Math.cos(angle) * 4.6).toFixed(4)),
+    cy: parseFloat((12 + Math.sin(angle) * 4.6).toFixed(4)),
+  };
+});
+
+export const RosetteIcon = (props: IconProps) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+    {ROSETTE_PETALS.map((p, i) => (
+      <circle key={i} cx={p.cx} cy={p.cy} r="4" fill="currentColor" />
+    ))}
+    <circle cx="12" cy="12" r="4" fill="currentColor" />
+  </svg>
+);
 
 export const LeafIcon = (props: IconProps) => (
   <svg {...base} {...props}>
@@ -285,6 +287,14 @@ export const CubeIcon = (props: IconProps) => (
 export const StarFilledIcon = (props: IconProps) => (
   <svg {...base} {...props} fill="currentColor" stroke="none">
     <path d="m12 3 2.6 6 6.4.5-4.9 4.3 1.5 6.2L12 16.9 6.4 20l1.5-6.2L3 9.5l6.4-.5L12 3Z" />
+  </svg>
+);
+
+export const PanoramaIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <ellipse cx="12" cy="12" rx="9" ry="9" />
+    <path d="M3 12c2-3 5-5 9-5s7 2 9 5M3 12c2 3 5 5 9 5s7-2 9-5" strokeLinecap="round" />
+    <line x1="12" y1="3" x2="12" y2="21" strokeLinecap="round" />
   </svg>
 );
 
