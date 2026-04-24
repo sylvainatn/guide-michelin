@@ -12,6 +12,7 @@ export type FeedRestaurantItem = {
   stars: number | null;
   chefName: string | null;
   style: string[];
+  photos360: string[];
   createdAt: string;
   bookmarkedByMe: boolean;
   favoritedByMe: boolean;

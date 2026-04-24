@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "../atoms/Button";
 import { MichelinBadge } from "../atoms/MichelinBadge";
 import { OutlinedPill } from "../atoms/OutlinedPill";
-import { ArrowRightIcon, CubeIcon, PinIcon } from "../atoms/icons";
+import { ArrowRightIcon, PanoramaIcon, PinIcon } from "../atoms/icons";
 
 type FeedSheetProps = {
   href: string;
@@ -13,7 +12,7 @@ type FeedSheetProps = {
   stars: number | null;
   partnerTag?: string | null;
   ctaLabel?: string;
-  tourHref?: string | null;
+  onOpenTour?: (() => void) | null;
 };
 
 export const FeedSheet = ({
@@ -23,7 +22,7 @@ export const FeedSheet = ({
   stars,
   partnerTag,
   ctaLabel = "Réserver cette Escapade",
-  tourHref,
+  onOpenTour,
 }: FeedSheetProps) => (
   <section
     className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-black/80 via-black/45 to-transparent px-5 pt-20 text-white"
@@ -46,22 +45,22 @@ export const FeedSheet = ({
     </p>
 
     <div className="pointer-events-auto mt-4 flex items-stretch gap-3">
-      {tourHref && (
-        <Link
-          href={tourHref}
+      {onOpenTour && (
+        <button
+          type="button"
+          onClick={onOpenTour}
           className="flex w-16 flex-col items-center justify-center gap-1 rounded-2xl bg-white py-2.5 text-neutral-900 shadow-lg"
         >
-          <CubeIcon className="size-5" />
-          <span className="text-[10px] font-semibold">Vue 3D</span>
-        </Link>
+          <PanoramaIcon className="size-5" />
+          <span className="text-[10px] font-semibold">Vue 360°</span>
+        </button>
       )}
-      <Link href={href} className="flex-1">
-        <Button
-          fullWidth
-          trailingIcon={<ArrowRightIcon className="size-4" />}
-        >
-          {ctaLabel}
-        </Button>
+      <Link
+        href={href}
+        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-h1 font-semibold text-white transition-colors hover:bg-michelin-red-500 active:bg-michelin-red-700"
+      >
+        {ctaLabel}
+        <ArrowRightIcon className="size-4 shrink-0" />
       </Link>
     </div>
   </section>

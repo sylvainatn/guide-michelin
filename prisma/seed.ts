@@ -59,6 +59,8 @@ type SeedRestaurant = {
   priceRange: "EUR" | "EUREUR" | "EUREUREUR" | "EUREUREUREUR";
   style: string[];
   tourStops: TourConfig;
+  videoUrl?: string;
+  photos360?: string[];
   review: SeedReview;
 };
 
@@ -91,6 +93,10 @@ const seedRestaurants: SeedRestaurant[] = [
     priceRange: "EUREUREUR",
     style: ["Pour vous", "Vignes & Gastronomie"],
     tourStops: DEFAULT_TOUR_CONFIG,
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    photos360: [
+      "/uploads/images/restaurant/18787196.jpg",
+    ],
     review: {
       productsScore: 9.4,
       harmonyScore: 9.1,
@@ -116,6 +122,10 @@ const seedRestaurants: SeedRestaurant[] = [
     stars: 2,
     priceRange: "EUREUREUREUR",
     style: ["Gastronomie", "Moderne"],
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    photos360: [
+      "/uploads/images/restaurant/18787196.jpg",
+    ],
     tourStops: {
       ambient: "soir",
       stops: [
@@ -150,6 +160,10 @@ const seedRestaurants: SeedRestaurant[] = [
     stars: 0,
     priceRange: "EUREUR",
     style: ["Bib Gourmand", "Bord de mer"],
+    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    photos360: [
+      "/uploads/images/restaurant/18787196.jpg",
+    ],
     tourStops: {
       ambient: "dawn",
       stops: [
@@ -258,6 +272,8 @@ async function main() {
       style: r.style,
       tourStops: r.tourStops as unknown as object,
       ownerId: adminId,
+      ...(r.videoUrl !== undefined ? { videoUrl: r.videoUrl } : {}),
+      ...(r.photos360 !== undefined ? { photos360: r.photos360 } : {}),
     };
     let restaurantId: string;
     if (existing) {

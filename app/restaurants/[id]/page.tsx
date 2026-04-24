@@ -16,15 +16,14 @@ import {
   restaurantApi,
 } from "../../../lib/restaurants/client";
 import { shareRestaurant } from "../../../lib/restaurants/share";
-import { isTourConfig } from "../../../lib/restaurants/tour-stops";
 
-const RestaurantTour3D = dynamic(
-  () => import("../../../components/organisms/RestaurantTour3D"),
+const PhotoSphereModal = dynamic(
+  () => import("../../../components/organisms/PhotoSphereModal"),
   {
     ssr: false,
     loading: () => (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black text-secondary">
-        <MutedText>Chargement de la visite 3D...</MutedText>
+        <MutedText>Chargement de la vue 360°…</MutedText>
       </div>
     ),
   },
@@ -106,9 +105,6 @@ export default function RestaurantDetailPage() {
     );
   }
 
-  const tourConfig = isTourConfig(restaurant.tourStops)
-    ? restaurant.tourStops
-    : null;
   const review = restaurant.review;
 
   return (
@@ -150,13 +146,15 @@ export default function RestaurantDetailPage() {
           )}
 
           <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={() => setTourOpen(true)}
-              className="inline-flex h-12 items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 text-[13px] font-semibold text-tertiary hover:border-primary hover:text-primary"
-            >
-              Ouvrir la visite 3D
-            </button>
+            {(restaurant.photos360?.length ?? 0) > 0 && (
+              <button
+                type="button"
+                onClick={() => setTourOpen(true)}
+                className="inline-flex h-12 items-center justify-center rounded-xl border border-neutral-200 bg-white px-4 text-[13px] font-semibold text-tertiary hover:border-primary hover:text-primary"
+              >
+                Voir en 360°
+              </button>
+            )}
             <button
               type="button"
               onClick={handleReserve}
@@ -167,19 +165,11 @@ export default function RestaurantDetailPage() {
           </div>
         </div>
 
-        {tourOpen && (
-          <RestaurantTour3D
+        {tourOpen && (restaurant.photos360?.length ?? 0) > 0 && (
+          <PhotoSphereModal
+            photos={restaurant.photos360!}
             restaurantName={restaurant.name}
-            chefName={restaurant.chefName}
-            stars={restaurant.stars}
-            address={restaurant.address}
-            style={restaurant.style}
-            priceRange={restaurant.priceRange}
-            tourConfig={tourConfig}
-            wallTextures={restaurant.photos360}
             onClose={() => setTourOpen(false)}
-            onReserve={handleReserve}
-            onShare={handleShare}
           />
         )}
       </div>
