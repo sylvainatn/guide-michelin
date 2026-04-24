@@ -6,7 +6,6 @@ import express from "express";
 import helmet from "helmet";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/error-handler";
-import { apiLimiter } from "./middleware/rate-limit";
 import { authRouter } from "./modules/auth/auth.routes";
 import { friendRouter } from "./modules/friends/friend.routes";
 import { interactionRouter } from "./modules/interactions/interaction.routes";
@@ -36,7 +35,6 @@ app.use(
 app.use(cors({ origin: env.WEB_ORIGIN, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
-app.use(apiLimiter);
 
 // Next en prod scanne `public/` au démarrage : les fichiers uploadés ensuite
 // ne sont pas servis. On les sert depuis Express qui lit le disque à chaque requête.
