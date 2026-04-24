@@ -1,17 +1,31 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ACCOMMODATION_CATEGORY_LABEL } from "../../lib/accommodations/client";
 import type { FeedItem } from "../../lib/feed/client";
 import { shareRestaurant } from "../../lib/restaurants/share";
 import { MuteToggle } from "../atoms/MuteToggle";
+import { MutedText } from "../atoms/MutedText";
 import { Video } from "../atoms/Video";
 import { VideoPlayIndicator } from "../atoms/VideoPlayIndicator";
 import { VideoProgress } from "../atoms/VideoProgress";
 import { FeedActionRail } from "./FeedActionRail";
 import { FeedSheet } from "./FeedSheet";
 import { FeedTopbar } from "./FeedTopbar";
+
+const PhotoSphereModal = dynamic(
+  () => import("../organisms/PhotoSphereModal"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <MutedText>Chargement…</MutedText>
+      </div>
+    ),
+  },
+);
 
 const SWIPE_THRESHOLD_PX = 70;
 const SWIPE_MAX_VERTICAL_DRIFT = 60;
@@ -54,6 +68,7 @@ export const VideoCard = ({ item }: { item: FeedItem }) => {
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -168,10 +183,20 @@ export const VideoCard = ({ item }: { item: FeedItem }) => {
         stars={item.stars}
         partnerTag={partnerTagOf(item)}
         ctaLabel={ctaLabelOf(item)}
-        tourHref={
-          item.kind === "restaurant" ? `/restaurants/${item.id}?tour=1` : null
+        onOpenTour={
+          item.kind === "restaurant" && (item.photos360?.length ?? 0) > 0
+            ? () => setTourOpen(true)
+            : null
         }
       />
+
+      {tourOpen && item.kind === "restaurant" && (
+        <PhotoSphereModal
+          photos={item.photos360}
+          restaurantName={item.name}
+          onClose={() => setTourOpen(false)}
+        />
+      )}
 
       <div className="absolute inset-x-0 bottom-0 z-30">
         <VideoProgress videoRef={videoRef} />

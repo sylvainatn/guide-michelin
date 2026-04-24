@@ -22,6 +22,7 @@ export const createRestaurantSchema = z.object({
   stars: z.number().int().min(0).max(3).optional(),
   priceRange: z.enum(["EUR", "EUREUR", "EUREUREUR", "EUREUREUREUR"]).optional(),
   style: z.array(z.string().trim().min(1).max(50)).max(10).optional(),
+  photos360: z.array(z.string().trim().max(2000)).max(20).optional(),
 });
 
 export type CreateRestaurantInput = z.infer<typeof createRestaurantSchema>;
@@ -63,6 +64,7 @@ export const updateRestaurantSchema = z
       .union([z.enum(["EUR", "EUREUR", "EUREUREUR", "EUREUREUREUR"]), z.null()])
       .optional(),
     style: z.array(z.string().trim().min(1).max(50)).max(10).optional(),
+    photos360: z.array(z.string().trim().max(2000)).max(20).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "Au moins un champ doit etre fourni.",

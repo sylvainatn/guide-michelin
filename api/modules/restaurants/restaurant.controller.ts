@@ -40,6 +40,7 @@ export const create = async (req: Request, res: Response) => {
       stars: input.stars,
       priceRange: input.priceRange,
       style: input.style ?? [],
+      photos360: input.photos360 ?? [],
       ownerId,
     },
   });
@@ -122,6 +123,7 @@ export const update = async (req: Request, res: Response) => {
         ? { priceRange: input.priceRange }
         : {}),
       ...(input.style !== undefined ? { style: input.style } : {}),
+      ...(input.photos360 !== undefined ? { photos360: input.photos360 } : {}),
     },
   });
 
