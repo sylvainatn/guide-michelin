@@ -264,7 +264,7 @@ const seedRestaurants: SeedRestaurant[] = [
     stars: 0,
     priceRange: "EUREUR",
     style: ["Bib Gourmand", "Bord de mer"],
-    videoUrl: "/uploads/videos/restaurant/1776959700421-fa519b7e-b4cb-4675-965b-8489207463f2.mp4",
+    videoUrl: "/uploads/videos/restaurant/1776949855084-731f4655-e4af-4a8a-9cf6-a4c1f50ecf5a.mp4",
     photos360: [
       "/uploads/images/restaurant/18787196.jpg",
     ],
@@ -328,7 +328,7 @@ const seedAccommodations: SeedAccommodation[] = [
     stars: 5,
     priceFromEur: 490,
     amenities: ["Spa", "Bar", "Voiturier", "Concierge"],
-    videoUrl: "/uploads/videos/accommodation/1776950229269-f1a84691-f011-461e-bb67-ed9a903ff880.mp4",
+    videoUrl: "/uploads/videos/accommodation/1776950135497-f732fe65-f5ec-4a58-badd-2176f008cfae.mp4",
   },
 ];
 
