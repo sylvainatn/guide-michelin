@@ -182,6 +182,7 @@ type SeedAccommodation = {
   stars?: number;
   priceFromEur?: number;
   amenities?: string[];
+  videoUrl?: string;
 };
 
 const seedRestaurants: SeedRestaurant[] = [
@@ -196,7 +197,7 @@ const seedRestaurants: SeedRestaurant[] = [
     priceRange: "EUREUREUR",
     style: ["Pour vous", "Vignes & Gastronomie"],
     tourStops: DEFAULT_TOUR_CONFIG,
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    videoUrl: "/uploads/videos/restaurant/1776949855084-731f4655-e4af-4a8a-9cf6-a4c1f50ecf5a.mp4",
     photos360: [
       "/uploads/images/restaurant/18787196.jpg",
     ],
@@ -225,7 +226,7 @@ const seedRestaurants: SeedRestaurant[] = [
     stars: 2,
     priceRange: "EUREUREUREUR",
     style: ["Gastronomie", "Moderne"],
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    videoUrl: "/uploads/videos/restaurant/1776949907982-68547dec-2e5c-4b2d-9e23-a3e4bd87935b.mp4",
     photos360: [
       "/uploads/images/restaurant/18787196.jpg",
     ],
@@ -263,7 +264,7 @@ const seedRestaurants: SeedRestaurant[] = [
     stars: 0,
     priceRange: "EUREUR",
     style: ["Bib Gourmand", "Bord de mer"],
-    videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    videoUrl: "/uploads/videos/restaurant/1776959700421-fa519b7e-b4cb-4675-965b-8489207463f2.mp4",
     photos360: [
       "/uploads/images/restaurant/18787196.jpg",
     ],
@@ -303,6 +304,7 @@ const seedAccommodations: SeedAccommodation[] = [
     stars: 5,
     priceFromEur: 860,
     amenities: ["Piscine", "Spa", "Plage privee", "Chef prive"],
+    videoUrl: "/uploads/videos/accommodation/1776950135497-f732fe65-f5ec-4a58-badd-2176f008cfae.mp4",
   },
   {
     slug: "chalet-megeve-alpina",
@@ -314,6 +316,7 @@ const seedAccommodations: SeedAccommodation[] = [
     stars: 4,
     priceFromEur: 520,
     amenities: ["Spa nordique", "Cheminee", "Ski in/out"],
+    videoUrl: "/uploads/videos/accommodation/1776950192823-3acf3de2-7727-487f-9e62-a7cf2f902d8e.mp4",
   },
   {
     slug: "hotel-maison-lumiere",
@@ -325,6 +328,7 @@ const seedAccommodations: SeedAccommodation[] = [
     stars: 5,
     priceFromEur: 490,
     amenities: ["Spa", "Bar", "Voiturier", "Concierge"],
+    videoUrl: "/uploads/videos/accommodation/1776950229269-f1a84691-f011-461e-bb67-ed9a903ff880.mp4",
   },
 ];
 
@@ -470,6 +474,7 @@ async function main() {
       priceFromEur: a.priceFromEur,
       amenities: a.amenities ?? [],
       ownerId: adminId,
+      ...(a.videoUrl !== undefined ? { videoUrl: a.videoUrl } : {}),
     };
     if (existing) {
       await prisma.accommodation.update({ where: { id: existing.id }, data });
